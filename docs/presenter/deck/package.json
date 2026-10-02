@@ -1,0 +1,10 @@
+{
+  "name": "copilot-workshop-backup-deck",
+  "private": true,
+  "description": "Presenter backup deck for the Contoso Outfitters GitHub Copilot workshop (HyperFrames slideshow).",
+  "scripts": {
+    "dev": "npx hyperframes@latest present .",
+    "lint": "npx hyperframes@latest lint .",
+    "check": "npx hyperframes@latest check ."
+  }
+}

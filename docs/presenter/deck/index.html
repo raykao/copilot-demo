@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<title>Build, debug and test with GitHub Copilot: workshop backup deck</title>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+@font-face { font-family: "Mona Sans"; src: url("assets/fonts/mona-sans.woff2") format("woff2"); font-weight: 200 900; font-style: normal; font-display: block; }
+@font-face { font-family: "Monaspace Neon"; src: url("assets/fonts/monaspace-neon-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: "Monaspace Neon"; src: url("assets/fonts/monaspace-neon-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: block; }
+
+:root {
+  --bg: #0d1117; --bg2: #161b22; --bg3: #21262d; --border: #30363d; --border2: #3d444d;
+  --fg: #f0f6fc; --muted: #9198a1; --subtle: #b7bdc8;
+  --green: #3fb950; --green-em: #238636; --purple: #ab7df8; --purple-deep: #8957e5;
+  --blue: #4493f8; --red: #f85149; --orange: #f0883e; --yellow: #d29922; --pink: #f778ba;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+body { color: var(--fg); font-family: "Mona Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+code, .mono { font-family: "Monaspace Neon", ui-monospace, monospace; }
+
+.scene-frame {
+  position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; overflow: hidden;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  background:
+    radial-gradient(900px 600px at 100% 0%, rgba(137, 87, 229, 0.22), transparent 70%),
+    radial-gradient(800px 500px at 0% 100%, rgba(46, 160, 67, 0.12), transparent 70%),
+    var(--bg);
+}
+.scene-frame.m7 { background: radial-gradient(900px 600px at 100% 0%, rgba(248, 81, 73, 0.18), transparent 70%), radial-gradient(800px 500px at 0% 100%, rgba(137, 87, 229, 0.14), transparent 70%), var(--bg); }
+.scene-frame.m8 { background: radial-gradient(900px 600px at 100% 0%, rgba(68, 147, 248, 0.20), transparent 70%), radial-gradient(800px 500px at 0% 100%, rgba(46, 160, 67, 0.12), transparent 70%), var(--bg); }
+
+.pad { position: absolute; inset: 0; padding: 72px 96px 120px; display: flex; flex-direction: column; }
+.eyebrow { display: flex; align-items: center; gap: 16px; font-size: 26px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-bottom: 22px; }
+.tag { display: inline-flex; align-items: center; gap: 10px; padding: 6px 18px; border-radius: 999px; border: 1px solid var(--border2); background: rgba(22, 27, 34, 0.8); font-size: 24px; font-weight: 600; letter-spacing: 0.02em; text-transform: none; color: var(--fg); }
+.tag.m6 { border-color: rgba(171, 125, 248, 0.6); color: #d2b8ff; }
+.tag.m7 { border-color: rgba(248, 81, 73, 0.6); color: #ffa198; }
+.tag.m8 { border-color: rgba(68, 147, 248, 0.6); color: #a5d6ff; }
+h1, h2, h3, p { margin: 0; }
+h2 { font-size: 64px; line-height: 1.08; font-weight: 800; letter-spacing: -0.02em; max-width: 1700px; }
+h2 .hl { color: var(--purple); }
+h2 .hl-g { color: var(--green); }
+h2 .hl-r { color: var(--red); }
+h2 .hl-b { color: var(--blue); }
+.lede { font-size: 36px; line-height: 1.35; color: var(--subtle); margin-top: 20px; max-width: 1600px; }
+.body { flex: 1; display: flex; gap: 56px; margin-top: 40px; min-height: 0; }
+.col { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.grow { flex: 1; }
+
+.footer { position: absolute; left: 96px; right: 96px; bottom: 40px; display: flex; justify-content: space-between; align-items: center; font-size: 22px; color: var(--muted); }
+.footer .brand { display: flex; align-items: center; gap: 14px; }
+.footer svg { width: 30px; height: 30px; fill: var(--fg); }
+
+.icon { width: 1em; height: 1em; fill: currentColor; flex: none; }
+
+/* cards */
+.card { background: rgba(22, 27, 34, 0.92); border: 1px solid var(--border); border-radius: 20px; padding: 32px 36px; }
+.card h3 { font-size: 36px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; }
+.card p, .card li { font-size: 30px; line-height: 1.4; color: var(--subtle); }
+.card ul { margin: 0; padding-left: 34px; }
+.card li + li { margin-top: 8px; }
+.card .k { color: var(--fg); font-weight: 600; }
+.card.ok { border-color: rgba(63, 185, 80, 0.55); }
+.card.bad { border-color: rgba(248, 81, 73, 0.55); }
+.card.ai { border-color: rgba(171, 125, 248, 0.55); }
+.card.info { border-color: rgba(68, 147, 248, 0.55); }
+
+/* Copilot Chat prompt card */
+.prompt { background: #0b0e14; border: 1px solid rgba(171, 125, 248, 0.55); border-radius: 20px; overflow: hidden; box-shadow: 0 0 0 6px rgba(137, 87, 229, 0.10), 0 30px 80px rgba(0, 0, 0, 0.45); }
+.prompt .bar { display: flex; align-items: center; gap: 14px; padding: 16px 26px; background: rgba(137, 87, 229, 0.14); border-bottom: 1px solid rgba(171, 125, 248, 0.35); font-size: 24px; font-weight: 600; color: #d2b8ff; }
+.prompt .bar svg { width: 30px; height: 30px; fill: #d2b8ff; }
+.prompt .bar .mode { margin-left: auto; padding: 4px 14px; border-radius: 999px; background: rgba(171, 125, 248, 0.2); font-size: 20px; color: #e2d1ff; }
+.prompt pre { margin: 0; padding: 26px 30px; font-family: "Monaspace Neon", ui-monospace, monospace; font-size: 29px; line-height: 1.45; color: var(--fg); white-space: pre-wrap; word-break: break-word; }
+
+/* code block */
+.code { background: #0b0e14; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+.code .bar { display: flex; align-items: center; gap: 12px; padding: 14px 24px; border-bottom: 1px solid var(--border); font-family: "Monaspace Neon", ui-monospace, monospace; font-size: 22px; color: var(--muted); background: var(--bg2); }
+.code .bar svg { width: 26px; height: 26px; fill: var(--muted); }
+.code pre { margin: 0; padding: 22px 28px; font-family: "Monaspace Neon", ui-monospace, monospace; font-size: 27px; line-height: 1.5; color: #e6edf3; white-space: pre-wrap; word-break: break-word; }
+.c-cmd { color: #d2a8ff; font-weight: 600; }
+.c-ref { color: #79c0ff; }
+.c-cm { color: #8b949e; }
+.c-str { color: #a5d6ff; }
+.c-kw { color: #ff7b72; }
+.c-fn { color: #d2a8ff; }
+.c-ghost { color: #6e7681; font-style: italic; }
+.c-err { color: #ff7b72; font-weight: 600; }
+.c-ok { color: #7ee787; }
+.c-warn { color: #e3b341; }
+
+/* browser-framed screenshots */
+.browser { border-radius: 18px; overflow: hidden; border: 1px solid var(--border2); background: #f6f8fa; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55); }
+.browser .chrome { height: 46px; display: flex; align-items: center; gap: 10px; padding: 0 18px; background: #1c2128; border-bottom: 1px solid var(--border); }
+.browser .dot { width: 14px; height: 14px; border-radius: 50%; background: #484f58; }
+.browser .dot.r { background: #ff5f57; } .browser .dot.y { background: #febc2e; } .browser .dot.g { background: #28c840; }
+.browser .url { margin-left: 18px; flex: 1; max-width: 520px; height: 30px; border-radius: 8px; background: #0d1117; color: var(--muted); font-size: 18px; display: flex; align-items: center; padding: 0 14px; font-family: "Monaspace Neon", ui-monospace, monospace; }
+.shot { position: relative; line-height: 0; }
+.shot img { width: 100%; height: auto; display: block; }
+.ring { position: absolute; border: 5px solid var(--red); border-radius: 14px; box-shadow: 0 0 0 9999px rgba(1, 4, 9, 0.0), 0 0 30px rgba(248, 81, 73, 0.6); }
+.ring.g { border-color: var(--green); box-shadow: 0 0 30px rgba(63, 185, 80, 0.6); }
+.crop { position: relative; overflow: hidden; line-height: 0; background: #f6f8fa; }
+.crop img { position: absolute; display: block; max-width: none; }
+
+/* pills */
+.pill { display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px; border-radius: 999px; font-size: 26px; font-weight: 600; border: 1px solid var(--border2); background: var(--bg2); color: var(--fg); white-space: nowrap; }
+.pill.r { border-color: rgba(248, 81, 73, 0.6); color: #ffa198; background: rgba(248, 81, 73, 0.10); }
+.pill.g { border-color: rgba(63, 185, 80, 0.6); color: #7ee787; background: rgba(63, 185, 80, 0.10); }
+.pill.p { border-color: rgba(171, 125, 248, 0.6); color: #d2b8ff; background: rgba(137, 87, 229, 0.12); }
+.pill.b { border-color: rgba(68, 147, 248, 0.6); color: #a5d6ff; background: rgba(68, 147, 248, 0.10); }
+.pill.y { border-color: rgba(210, 153, 34, 0.6); color: #e3b341; background: rgba(210, 153, 34, 0.10); }
+.row { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+
+/* tables */
+table.tbl { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 28px; background: rgba(22, 27, 34, 0.92); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+.tbl th { text-align: left; padding: 18px 24px; font-size: 22px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); background: var(--bg2); border-bottom: 1px solid var(--border); font-weight: 600; }
+.tbl td { padding: 16px 24px; border-bottom: 1px solid var(--border); color: var(--subtle); vertical-align: top; line-height: 1.35; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl td.k { color: var(--fg); font-weight: 600; }
+.tbl code { font-size: 24px; color: #a5d6ff; }
+
+/* section dividers */
+.divider .num { position: absolute; right: 60px; top: 30px; font-size: 560px; line-height: 1; font-weight: 900; letter-spacing: -0.06em; color: transparent; -webkit-text-stroke: 3px rgba(240, 246, 252, 0.10); }
+.divider .inner { position: absolute; left: 120px; right: 120px; top: 250px; }
+.divider .kicker { font-size: 32px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.divider h1 { font-size: 132px; line-height: 1.0; font-weight: 900; letter-spacing: -0.035em; margin-top: 20px; }
+.divider .sub { font-size: 44px; line-height: 1.3; color: var(--subtle); margin-top: 32px; max-width: 1400px; }
+.divider .row { margin-top: 56px; }
+.grad-p { background: linear-gradient(90deg, #d2a8ff, #8957e5 60%, #4493f8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.grad-r { background: linear-gradient(90deg, #ffa198, #f85149 55%, #ab7df8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.grad-b { background: linear-gradient(90deg, #a5d6ff, #4493f8 55%, #3fb950); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* steps */
+.steps { display: flex; flex-direction: column; gap: 16px; }
+.step { display: flex; align-items: center; gap: 22px; font-size: 30px; color: var(--subtle); }
+.step .n { width: 54px; height: 54px; border-radius: 50%; flex: none; display: grid; place-items: center; font-weight: 800; font-size: 26px; background: var(--bg3); border: 1px solid var(--border2); color: var(--fg); }
+.step.stop .n { background: rgba(210, 153, 34, 0.18); border-color: var(--yellow); color: #e3b341; }
+.step.go .n { background: rgba(63, 185, 80, 0.18); border-color: var(--green); color: #7ee787; }
+.step b { color: var(--fg); font-weight: 600; }
+
+.big-stat, .card .big-stat { font-size: 88px; font-weight: 900; letter-spacing: -0.03em; line-height: 1; margin-bottom: 16px; }
+.label { font-size: 24px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.quote { font-size: 40px; line-height: 1.35; color: var(--fg); border-left: 6px solid var(--purple); padding-left: 32px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position: absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-mark" viewBox="0 0 24 24"><path d="M10.226 17.284c-2.965-.36-5.054-2.493-5.054-5.256 0-1.123.404-2.336 1.078-3.144-.292-.741-.247-2.314.09-2.965.898-.112 2.111.36 2.83 1.01.853-.269 1.752-.404 2.853-.404 1.1 0 1.999.135 2.807.382.696-.629 1.932-1.1 2.83-.988.315.606.36 2.179.067 2.942.72.854 1.101 2 1.101 3.167 0 2.763-2.089 4.852-5.098 5.234.763.494 1.28 1.572 1.28 2.807v2.336c0 .674.561 1.056 1.235.786 4.066-1.55 7.255-5.615 7.255-10.646C23.5 6.188 18.334 1 11.978 1 5.62 1 .5 6.188.5 12.545c0 4.986 3.167 9.12 7.435 10.669.606.225 1.19-.18 1.19-.786V20.63a2.9 2.9 0 0 1-1.078.224c-1.483 0-2.359-.808-2.987-2.313-.247-.607-.517-.966-1.034-1.033-.27-.023-.359-.135-.359-.27 0-.27.45-.471.898-.471.652 0 1.213.404 1.797 1.235.45.651.921.943 1.483.943.561 0 .92-.202 1.437-.719.382-.381.674-.718.944-.943"/></symbol>
+    <symbol id="i-copilot" viewBox="0 0 24 24"><path d="M23.922 16.992c-.861 1.495-5.859 5.023-11.922 5.023-6.063 0-11.061-3.528-11.922-5.023A.641.641 0 0 1 0 16.736v-2.869a.841.841 0 0 1 .053-.22c.372-.935 1.347-2.292 2.605-2.656.167-.429.414-1.055.644-1.517a10.195 10.195 0 0 1-.052-1.086c0-1.331.282-2.499 1.132-3.368.397-.406.89-.717 1.474-.952 1.399-1.136 3.392-2.093 6.122-2.093 2.731 0 4.767.957 6.166 2.093.584.235 1.077.546 1.474.952.85.869 1.132 2.037 1.132 3.368 0 .368-.014.733-.052 1.086.23.462.477 1.088.644 1.517 1.258.364 2.233 1.721 2.605 2.656a.832.832 0 0 1 .053.22v2.869a.641.641 0 0 1-.078.256ZM12.172 11h-.344a4.323 4.323 0 0 1-.355.508C10.703 12.455 9.555 13 7.965 13c-1.725 0-2.989-.359-3.782-1.259a2.005 2.005 0 0 1-.085-.104L4 11.741v6.585c1.435.779 4.514 2.179 8 2.179 3.486 0 6.565-1.4 8-2.179v-6.585l-.098-.104s-.033.045-.085.104c-.793.9-2.057 1.259-3.782 1.259-1.59 0-2.738-.545-3.508-1.492a4.323 4.323 0 0 1-.355-.508h-.016.016Zm.641-2.935c.136 1.057.403 1.913.878 2.497.442.544 1.134.938 2.344.938 1.573 0 2.292-.337 2.657-.751.384-.435.558-1.15.558-2.361 0-1.14-.243-1.847-.705-2.319-.477-.488-1.319-.862-2.824-1.025-1.487-.161-2.192.138-2.533.529-.269.307-.437.808-.438 1.578v.021c0 .265.021.562.063.893Zm-1.626 0c.042-.331.063-.628.063-.894v-.02c-.001-.77-.169-1.271-.438-1.578-.341-.391-1.046-.69-2.533-.529-1.505.163-2.347.537-2.824 1.025-.462.472-.705 1.179-.705 2.319 0 1.211.175 1.926.558 2.361.365.414 1.084.751 2.657.751 1.21 0 1.902-.394 2.344-.938.475-.584.742-1.44.878-2.497Z"/><path d="M14.5 14.25a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0v-2a1 1 0 0 1 1-1Zm-5 0a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0v-2a1 1 0 0 1 1-1Z"/></symbol>
+    <symbol id="i-bug" viewBox="0 0 24 24"><path d="M7.72.22a.75.75 0 0 1 1.06 0l1.204 1.203A4.98 4.98 0 0 1 12 1c.717 0 1.4.151 2.016.423L15.22.22a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-.971.972A4.991 4.991 0 0 1 17 6v1.104a2.755 2.755 0 0 1 1.917 1.974l1.998-.999a.75.75 0 0 1 .67 1.342L19 10.714V13.5l3.25.003a.75.75 0 0 1 0 1.5L19 15.001V16c0 .568-.068 1.134-.204 1.686l.04.018 2.75 1.375a.75.75 0 1 1-.671 1.342l-2.638-1.319A6.998 6.998 0 0 1 12 23a6.998 6.998 0 0 1-6.197-3.742l-2.758 1.181a.752.752 0 0 1-1.064-.776.752.752 0 0 1 .474-.602l2.795-1.199A6.976 6.976 0 0 1 5 16v-.996H1.75a.75.75 0 0 1 0-1.5H5v-2.79L2.415 9.42a.75.75 0 0 1 .67-1.342l1.998.999A2.756 2.756 0 0 1 7 7.104V6a4.99 4.99 0 0 1 1.69-3.748l-.97-.972a.75.75 0 0 1 0-1.06ZM6.5 9.75V16a5.5 5.5 0 1 0 11 0V9.75c0-.69-.56-1.25-1.25-1.25h-8.5c-.69 0-1.25.56-1.25 1.25ZM8.5 7h7V6a3.5 3.5 0 1 0-7 0Z"/></symbol>
+    <symbol id="i-beaker" viewBox="0 0 24 24"><path d="M8 8.807V3.5h-.563a.75.75 0 0 1 0-1.5h9.125a.75.75 0 0 1 0 1.5H16v5.307l5.125 9.301c.964 1.75-.302 3.892-2.299 3.892H5.174c-1.998 0-3.263-2.142-2.3-3.892ZM4.189 18.832a1.123 1.123 0 0 0 .985 1.668h13.652a1.123 1.123 0 0 0 .985-1.668L17.7 15H6.3ZM14.5 3.5h-5V9a.75.75 0 0 1-.093.362L7.127 13.5h9.746l-2.28-4.138A.75.75 0 0 1 14.5 9Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M17.28 9.28a.75.75 0 0 0-1.06-1.06l-5.97 5.970-2.47-2.47a.75.75 0 0 0-1.06 1.06l3 3a.75.75 0 0 0 1.06 0l6.5-6.5Z"/><path d="M12 1c6.075 0 11 4.925 11 11s-4.925 11-11 11S1 18.075 1 12 5.925 1 12 1ZM2.5 12a9.5 9.5 0 0 0 9.5 9.5 9.5 9.5 0 0 0 9.5-9.5A9.5 9.5 0 0 0 12 2.5 9.5 9.5 0 0 0 2.5 12Z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M9.036 7.976a.75.75 0 0 0-1.06 1.06L10.939 12l-2.963 2.963a.75.75 0 1 0 1.06 1.06L12 13.06l2.963 2.964a.75.75 0 1 0 1.061-1.06L13.061 12l2.963-2.964a.75.75 0 1 0-1.06-1.06L12 10.939 9.036 7.976Z"/><path d="M12 1c6.075 0 11 4.925 11 11s-4.925 11-11 11S1 18.075 1 12 5.925 1 12 1ZM2.5 12a9.5 9.5 0 0 0 9.5 9.5 9.5 9.5 0 0 0 9.5-9.5A9.5 9.5 0 0 0 12 2.5 9.5 9.5 0 0 0 2.5 12Z"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><path d="M9.25 12a.75.75 0 0 1-.22.53l-2.75 2.75a.75.75 0 0 1-1.06-1.06L7.44 12 5.22 9.78a.75.75 0 1 1 1.06-1.06l2.75 2.75c.141.14.22.331.22.53Zm2 2a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5h-5Z"/><path d="M0 4.75C0 3.784.784 3 1.75 3h20.5c.966 0 1.75.784 1.75 1.75v14.5A1.75 1.75 0 0 1 22.25 21H1.75A1.75 1.75 0 0 1 0 19.25Zm1.75-.25a.25.25 0 0 0-.25.25v14.5c0 .138.112.25.25.25h20.5a.25.25 0 0 0 .25-.25V4.75a.25.25 0 0 0-.25-.25Z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M3 3a2 2 0 0 1 2-2h9.982a2 2 0 0 1 1.414.586l4.018 4.018A2 2 0 0 1 21 7.018V21a2 2 0 0 1-2 2H4.75a.75.75 0 0 1 0-1.5H19a.5.5 0 0 0 .5-.5V8.5h-4a2 2 0 0 1-2-2v-4H5a.5.5 0 0 0-.5.5v6.25a.75.75 0 0 1-1.5 0Zm12-.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0-.146-.336l-4.018-4.018A.5.5 0 0 0 15 2.5Z"/><path d="M4.53 12.24a.75.75 0 0 1-.039 1.06l-2.639 2.45 2.64 2.45a.75.75 0 1 1-1.022 1.1l-3.23-3a.75.75 0 0 1 0-1.1l3.23-3a.75.75 0 0 1 1.06.04Zm3.979 1.06a.75.75 0 1 1 1.02-1.1l3.231 3a.75.75 0 0 1 0 1.1l-3.23 3a.75.75 0 1 1-1.021-1.1l2.639-2.45-2.64-2.45Z"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M20.322.75h1.176a1.75 1.75 0 0 1 1.75 1.749v1.177a10.75 10.75 0 0 1-2.925 7.374l-1.228 1.304a23.699 23.699 0 0 1-1.596 1.542v5.038c0 .615-.323 1.184-.85 1.5l-4.514 2.709a.75.75 0 0 1-1.12-.488l-.963-4.572a1.305 1.305 0 0 1-.14-.129L8.04 15.96l-1.994-1.873a1.305 1.305 0 0 1-.129-.14l-4.571-.963a.75.75 0 0 1-.49-1.12l2.71-4.514c.316-.527.885-.85 1.5-.85h5.037a23.668 23.668 0 0 1 1.542-1.594l1.304-1.23A10.753 10.753 0 0 1 20.321.75Zm-6.344 4.018v-.001l-1.304 1.23a22.275 22.275 0 0 0-3.255 3.851l-2.193 3.29 1.859 1.744a.545.545 0 0 1 .034.034l1.743 1.858 3.288-2.192a22.263 22.263 0 0 0 3.854-3.257l1.228-1.303a9.251 9.251 0 0 0 2.517-6.346V2.5a.25.25 0 0 0-.25-.25h-1.177a9.252 9.252 0 0 0-6.344 2.518ZM6.5 21c-1.209 1.209-3.901 1.445-4.743 1.49a.236.236 0 0 1-.18-.067.236.236 0 0 1-.067-.18c.045-.842.281-3.534 1.49-4.743.9-.9 2.6-.9 3.5 0 .9.9.9 2.6 0 3.5Zm-.592-8.588L8.17 9.017c.23-.346.47-.685.717-1.017H5.066a.25.25 0 0 0-.214.121l-2.167 3.612ZM16 15.112c-.333.248-.672.487-1.018.718l-3.393 2.262.678 3.223 3.612-2.167a.25.25 0 0 0 .121-.214ZM17.5 8a1.5 1.5 0 1 1-3.001-.001A1.5 1.5 0 0 1 17.5 8Z"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M12 2.5c-3.81 0-6.5 2.743-6.5 6.119 0 1.536.632 2.572 1.425 3.56.172.215.347.422.527.635l.096.112c.21.25.427.508.63.774.404.531.783 1.128.995 1.834a.75.75 0 0 1-1.436.432c-.138-.46-.397-.89-.753-1.357a18.111 18.111 0 0 0-.582-.714l-.092-.11c-.18-.212-.37-.436-.555-.667C4.87 12.016 4 10.651 4 8.618 4 4.363 7.415 1 12 1s8 3.362 8 7.619c0 2.032-.87 3.397-1.755 4.5-.185.23-.375.454-.555.667l-.092.109c-.21.248-.405.481-.582.714-.356.467-.615.898-.753 1.357a.751.751 0 0 1-1.437-.432c.213-.706.592-1.303.997-1.834.202-.266.419-.524.63-.774l.095-.112c.18-.213.355-.42.527-.634.793-.99 1.425-2.025 1.425-3.561C18.5 5.243 15.81 2.5 12 2.5ZM8.75 18h6.5a.75.75 0 0 1 0 1.5h-6.5a.75.75 0 0 1 0-1.5Zm.75 3.75a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75Z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M13 17.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-.25-8.25a.75.75 0 0 0-1.5 0v4.5a.75.75 0 0 0 1.5 0v-4.5Z"/><path d="M9.836 3.244c.963-1.665 3.365-1.665 4.328 0l8.967 15.504c.963 1.667-.24 3.752-2.165 3.752H3.034c-1.926 0-3.128-2.085-2.165-3.752Zm3.03.751a1.002 1.002 0 0 0-1.732 0L2.168 19.499A1.002 1.002 0 0 0 3.034 21h17.932a1.002 1.002 0 0 0 .866-1.5L12.866 3.994Z"/></symbol>
+    <symbol id="i-tools" viewBox="0 0 24 24"><path d="M7.875 2.292a.114.114 0 0 0-.032.018A7.239 7.239 0 0 0 4.75 8.250a7.248 7.248 0 0 0 3.654 6.297c.57.327.982.955.941 1.682v.002l-.317 6.058a.75.75 0 1 1-1.498-.078l.317-6.062v-.004c.006-.09-.047-.215-.188-.296A8.749 8.749 0 0 1 3.25 8.25a8.738 8.738 0 0 1 3.732-7.169 1.547 1.547 0 0 1 1.709-.064c.484.292.809.835.809 1.46v4.714a.25.25 0 0 0 .119.213l2.25 1.385c.08.05.182.05.262 0l2.25-1.385a.25.25 0 0 0 .119-.213V2.478c0-.626.325-1.169.81-1.461a1.547 1.547 0 0 1 1.708.064 8.741 8.741 0 0 1 3.732 7.17 8.747 8.747 0 0 1-4.41 7.598c-.14.081-.193.206-.188.296v.004l.318 6.062a.75.75 0 1 1-1.498.078l-.317-6.058v-.002c-.041-.727.37-1.355.94-1.682A7.247 7.247 0 0 0 19.25 8.25a7.239 7.239 0 0 0-3.093-5.94.114.114 0 0 0-.032-.018l-.01-.001c-.003 0-.014 0-.031.01-.036.022-.084.079-.084.177V7.19c0 .608-.315 1.172-.833 1.49l-2.25 1.385a1.75 1.75 0 0 1-1.834 0l-2.25-1.384A1.752 1.752 0 0 1 8 7.192V2.477c0-.098-.048-.155-.084-.176a.068.068 0 0 0-.031-.011l-.01.001Z"/></symbol>
+    <symbol id="i-sync" viewBox="0 0 24 24"><path d="M3.38 8A9.502 9.502 0 0 1 12 2.5a9.502 9.502 0 0 1 9.215 7.182.75.75 0 1 0 1.456-.364C21.473 4.539 17.15 1 12 1a10.995 10.995 0 0 0-9.5 5.452V4.75a.75.75 0 0 0-1.5 0V8.5a1 1 0 0 0 1 1h3.75a.75.75 0 0 0 0-1.5H3.38Zm-.595 6.318a.75.75 0 0 0-1.455.364C2.527 19.461 6.85 23 12 23c4.052 0 7.592-2.191 9.5-5.451v1.701a.75.75 0 0 0 1.5 0V15.5a1 1 0 0 0-1-1h-3.75a.75.75 0 0 0 0 1.5h2.37A9.502 9.502 0 0 1 12 21.5c-4.446 0-8.181-3.055-9.215-7.182Z"/></symbol>
+    <symbol id="i-checklist" viewBox="0 0 24 24"><path d="M3.5 3.75a.25.25 0 0 1 .25-.25h13.5a.25.25 0 0 1 .25.25v10a.75.75 0 0 0 1.5 0v-10A1.75 1.75 0 0 0 17.25 2H3.75A1.75 1.75 0 0 0 2 3.75v16.5c0 .966.784 1.75 1.75 1.75h7a.75.75 0 0 0 0-1.5h-7a.25.25 0 0 1-.25-.25V3.75Z"/><path d="M6.25 7a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Zm-.75 4.75a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1-.75-.75Zm16.28 4.53a.75.75 0 1 0-1.06-1.06l-4.97 4.97-1.97-1.97a.75.75 0 1 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0l5.5-5.5Z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M0 3.75A.75.75 0 0 1 .75 3h7.497c1.566 0 2.945.8 3.751 2.014A4.495 4.495 0 0 1 15.75 3h7.5a.75.75 0 0 1 .75.75v15.063a.752.752 0 0 1-.755.75l-7.682-.052a3 3 0 0 0-2.142.878l-.89.891a.75.75 0 0 1-1.061 0l-.902-.901a2.996 2.996 0 0 0-2.121-.879H.75a.75.75 0 0 1-.75-.75Zm12.75 15.232a4.503 4.503 0 0 1 2.823-.971l6.927.047V4.5h-6.75a3 3 0 0 0-3 3ZM11.247 7.497a3 3 0 0 0-3-2.997H1.5V18h6.947c1.018 0 2.006.346 2.803.98Z"/></symbol>
+    <symbol id="i-pr" viewBox="0 0 24 24"><path d="M16 19.25a3.25 3.25 0 1 1 6.5 0 3.25 3.25 0 0 1-6.5 0Zm-14.5 0a3.25 3.25 0 1 1 6.5 0 3.25 3.25 0 0 1-6.5 0Zm0-14.5a3.25 3.25 0 1 1 6.5 0 3.25 3.25 0 0 1-6.5 0ZM4.75 3a1.75 1.75 0 1 0 .001 3.501A1.75 1.75 0 0 0 4.75 3Zm0 14.5a1.75 1.75 0 1 0 .001 3.501A1.75 1.75 0 0 0 4.75 17.5Zm14.5 0a1.75 1.75 0 1 0 .001 3.501 1.75 1.75 0 0 0-.001-3.501Z"/><path d="M13.405 1.72a.75.75 0 0 1 0 1.06L12.185 4h4.065A3.75 3.75 0 0 1 20 7.75v8.75a.75.75 0 0 1-1.5 0V7.75a2.25 2.25 0 0 0-2.25-2.25h-4.064l1.22 1.22a.75.75 0 0 1-1.061 1.06l-2.5-2.5a.75.75 0 0 1 0-1.06l2.5-2.5a.75.75 0 0 1 1.06 0ZM4.75 7.25A.75.75 0 0 1 5.5 8v8A.75.75 0 0 1 4 16V8a.75.75 0 0 1 .75-.75Z"/></symbol>
+  </defs>
+</svg>
+
+<script type="application/hyperframes-slideshow+json">
+{
+  "slides": [
+    { "sceneId": "title", "notes": "Backup deck: use this if the live environment fails. Open with: one app that is still in development. We add a feature, chase production-style bugs, then lock it down with tests. Copilot never sees a toy snippet; it works in the whole repo the entire time." },
+    { "sceneId": "agenda", "notes": "48 minutes total. Kickoff 3, Module 6 scaffolding 13, Module 7 debugging 16, Module 8 testing 14, wrap-up 2. If you are presenting from slides only, each module still follows the same arc: scenario, prompt, what Copilot does, result." },
+    { "sceneId": "app", "notes": "Show the running app: Shop, Orders, Inventory, and the backend badge (API: node). One React client, two interchangeable backends (Node and Java) that implement the same REST contract in docs/API.md. Both load data/seed.json into memory and reset on restart." },
+    { "sceneId": "rules", "notes": "30 seconds each. copilot-instructions.md: the parity rule (change one backend, change both and update docs/API.md), the log format with requestId, the error envelope, never log PII. prompts/ become slash commands. agents/ (debugger, test-writer) are custom agents with their own rules. Per-stack .instructions.md files apply automatically by path." },
+    { "sceneId": "m6", "notes": "Module 6, about 13 minutes. Goal: go from a feature brief to working, tested code across API, service and UI, following the patterns already in the repo." },
+    { "sceneId": "m6-line", "notes": "Open server-node/src/routes/catalog.js. Type the comment and pause. Accept the ghost text. Point out it used NotFoundError without being told, because the error hierarchy lives in src/errors.js. Java version: CatalogController.java, Javadoc comment under products(); it reaches for NotFoundException. Talking point: the comment IS the prompt." },
+    { "sceneId": "m6-story", "notes": "The scenario. Every customer in seed.json already has a loyaltyPoints balance, but nothing reads or updates it. The brief is specs/loyalty-points/FEATURE.md: two endpoints, earning on checkout through its own calculator, a Loyalty panel in the UI, and two structured log lines. Out of scope: tiers and bonuses, which Module 8 adds test-first." },
+    { "sceneId": "m6-prompt", "notes": "Switch Chat to Agent mode and paste the prompt. Use stack=java for Java. Copilot reads the spec, the contract and the closest existing feature, proposes a file plan and STOPS. Review out loud: does it reuse AppError or StorefrontException, the logger and constructor injection? Does it plan tests and a docs/API.md update? Reply Approved. It should finish by running the test suite." },
+    { "sceneId": "m6-plan", "notes": "Expect 6 to 9 files. Say while it builds: it found the pricing feature and is copying its shape: constructor injection, the error hierarchy, the logger. That is the instructions file plus codebase grounding. Fallback: if it runs long, stop it, run Demo: jump to stage then 01-scaffold, restart the API, keep going." },
+    { "sceneId": "m6-result", "notes": "Verify: select Ada Lovelace (C-100); the Loyalty panel shows 120 points. Order Trail Running Shoes for $97.19 and the banner says you earned 97 points; balance is now 217. Redeem 50 to show the second endpoint. Java users: restart the API first (no hot reload)." },
+    { "sceneId": "m6-promptfile", "notes": "Open .github/prompts/scaffold-feature.prompt.md. Three things: agent: agent front matter runs it in Agent mode; input variables make one prompt serve any spec and either stack; plan, approve, build, test is what makes the output predictable. This is how a team shares a workflow, not just a prompt." },
+    { "sceneId": "m7", "notes": "Module 7, about 16 minutes. Several real defects, each needing a different prompting strategy. The theme: evidence first, root cause before fix, then prove it with a test." },
+    { "sceneId": "m7-evidence", "notes": "Create evidence in the UI (or run Demo: generate traffic): add Gift Card; then Rain Jacket plus SAVE10; then SAVE99; then Inventory then Reconcile. Watch the API terminal and logs/app.log. Each row is a different kind of defect and a different prompting strategy." },
+    { "sceneId": "m7-crash", "notes": "Scenario 1. Add Gift Card to the cart. The quote fails with INTERNAL_ERROR and a request ID in the banner. That request ID is the thread we pull: every log line for this request carries it. Note there is no stack trace in the response, which is correct behaviour." },
+    { "sceneId": "m7-crash-rca", "notes": "Ask mode. Paste the rca prompt with your request ID. The prompt makes Copilot classify, trace, find the upstream cause, list the blast radius including the other backend, and offer fix options without applying one. Answer key: SKU-1006 has price null in seed.json; priceLine reads price.amount. Java: NullPointerException in PricingService.priceLine. Talking point: it asks whether unpriced products should even be listed. That is a product decision, not a null check." },
+    { "sceneId": "m7-crash-fix", "notes": "Switch to the debugger agent and paste the fix prompt. It should write the failing test, run it red, fix, run it green. Good fix: validate and return 400 VALIDATION_ERROR with a clear message. Bad fixes to call out: pricing it at 0, wrapping it in try/catch. The fixed contract adds the rule to docs/API.md, and parity means the Java side gets the same fix." },
+    { "sceneId": "m7-tax", "notes": "Scenario 2: the silent defect. Rain Jacket x1 with SAVE10. No error, but tax is 11.92 and total 146.02. The log line proves it: discount=14.9 taxRate=0.08 tax=11.92, and 149 x 0.08 = 11.92. The contract says tax is charged on the discounted amount, so tax should be 10.73 and total 144.83. Same on both stacks." },
+    { "sceneId": "m7-tax-fix", "notes": "Paste the prompt with your numbers. Key move: give expected vs actual plus the contract, and ask it to explain before it fixes. It should land on tax computed from subtotal instead of subtotal minus discount. Then run fix-and-prove: failing test first, then the one-line fix, then green." },
+    { "sceneId": "m7-promo", "notes": "Node bonus, if time allows. SAVE99 is accepted with a 0.00 discount. Ask: why was SAVE99 accepted? The contract says unknown codes are 400 INVALID_PROMO. Root cause: findPromo uses Map.get which returns undefined, but the guard checks promo === null; optional chaining later hides it. Java uses Optional.orElseThrow and does not have this bug: a nice parity talking point." },
+    { "sceneId": "m7-recon", "notes": "Scenario 3: data integrity. Inventory tab, Reconcile with the default count sheet: 500. SKU-99871 was found on a shelf but never registered. Paste the prompt into the debugger agent. Node: TypeError reading onHand of undefined. Java: NullPointerException because expected is null (unboxing)." },
+    { "sceneId": "m7-recon-parity", "notes": "Reconcile again: do the numbers match the contract? After a skip-unknown fix only, Node shows 2 rows with avg 0.5 (signed average), Java shows 4 rows with avg 0.25 because Integer != Integer compares references above 127. Correct: SKU-1001 -2, SKU-1004 +3, average 2.5, unknownSkus SKU-99871. Java talking point: 250 equals 250, but two boxed 250s are different objects. If the first fix unboxes to int it fixes this by accident; ask for a test with stock above 127." },
+    { "sceneId": "m7-build", "notes": "Run Demo: break the build and choose your stack. In a REGULAR terminal (not a task terminal) run npm start or mvn -q compile. Then paste the terminalLastCommand prompt. Expect Copilot to recognise a half-finished rename and offer revert vs update every caller. Ask which keeps the public API stable. Skip with Demo: restore the build. Whole-module fallback: Demo: jump to stage then 02-debug." },
+    { "sceneId": "m8", "notes": "Module 8, about 14 minutes. Use Copilot to write tests first and let them drive the implementation. Four exercises; pick two or three for your audience." },
+    { "sceneId": "m8-menu", "notes": "Developers: A (TDD) plus D (doc) plus C plan only. QA or BA heavy: B (BDD) plus C (SDD). Mixed (default): A with two loops plus B. Exercise A builds on Module 6; if you skipped it, jump to stage 01-scaffold first." },
+    { "sceneId": "m8-tdd", "notes": "Agent mode. Copilot finds the first untested requirement, writes ONE failing test, shows it failing, writes the minimum code, and stops. Loop 1: requirement 2, the 10 percent bonus at 100 dollars or more; the test 150 to 165 fails because v1 returns 150. Loop 2: requirement 3, InvalidPurchaseError for amounts at or below zero. Watch for: checkout must not call the calculator with 0. Talking point: TDD with an AI only works if you keep the loop small." },
+    { "sceneId": "m8-bdd", "notes": "Step definitions are generated BEFORE the implementation and the first run fails. The Background table becomes data, not hard-coded ifs. Scenario Outline boundaries (9 vs 10 items, 499.99 vs 500.00) drive the >= comparisons. Expect 8 scenarios to pass (4 scenarios plus 4 outline rows). The rule that settles both-bulk-and-VIP: highest discount_percent wins. Both stacks read the same .feature file: one source of truth across two implementations." },
+    { "sceneId": "m8-sdd", "notes": "Copilot writes specs/password-reset/plan.md and STOPS for review. Look at the traceability table: every FR, NFR and acceptance criterion maps to a test. Ask the room: what would leak if the token store were dumped? (A good plan hashes tokens.) How do we test a 15-minute expiry without waiting 15 minutes? (Inject the clock and the random source.) Approve to have it implement tests first; stopping at the plan still shows the method." },
+    { "sceneId": "m8-doc", "notes": "Select LoyaltyService (or anything you touched today) and run doc. Then ask: does this documentation match what the tests prove? Fallback for the module: Demo: jump to stage then 03-tests, then run the test task to show everything green." },
+    { "sceneId": "wrap", "notes": "Scaffold: a spec plus repo instructions gives consistent, multi-layer code. Debug: evidence first, root cause before fix, then prove it with a test. Test: keep the loop small (TDD), make behaviour the source of truth (BDD), plan before code (SDD). Parity across two stacks shows Copilot follows YOUR conventions, not one favourite framework." },
+    { "sceneId": "recovery", "notes": "Presenter reference. Every module has a known-good snapshot in solutions/. Run the Demo: jump to stage task, restart the API, and keep going. Do not open solutions/ or docs/presenter in editor tabs while presenting: open tabs are context and Copilot may quote the answer key." },
+    { "sceneId": "thanks", "notes": "Close with the three verbs: build it, break it, prove it. Point people to the repo and to docs.github.com/copilot. Take questions." }
+  ]
+}
+</script>
+
+<!-- ============================ 0 · TITLE ============================ -->
+<div id="s-title" class="scene-frame" data-composition-id="title" data-start="0" data-duration="4" data-width="1920" data-height="1080" data-label="Title">
+  <div class="pad" style="justify-content: center; padding-left: 140px">
+    <div class="row" data-anim style="gap: 22px; margin-bottom: 44px">
+      <svg class="icon" style="width: 84px; height: 84px; fill: var(--fg)"><use href="#i-mark"/></svg>
+      <span style="font-size: 40px; color: var(--muted); font-weight: 300">+</span>
+      <svg class="icon" style="width: 92px; height: 92px; fill: #d2b8ff"><use href="#i-copilot"/></svg>
+      <span class="pill p" style="margin-left: 18px">Hands-on workshop</span>
+    </div>
+    <h1 data-anim style="font-size: 150px; line-height: 0.98; font-weight: 900; letter-spacing: -0.045em">Build it. <span class="grad-r">Break it.</span> <span class="grad-b">Prove it.</span></h1>
+    <p data-anim style="font-size: 50px; line-height: 1.3; color: var(--subtle); margin-top: 44px; max-width: 1450px">Scaffolding, debugging and testing a real app with GitHub Copilot agent mode</p>
+    <div class="row" data-anim style="margin-top: 64px">
+      <span class="pill">Contoso Outfitters storefront</span>
+      <span class="pill">React · Node · Java</span>
+      <span class="pill">48 minutes</span>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>01</span></div>
+</div>
+
+<!-- ============================ 1 · AGENDA ============================ -->
+<div id="s-agenda" class="scene-frame" data-composition-id="agenda" data-start="4" data-duration="4" data-width="1920" data-height="1080" data-label="Agenda">
+  <div class="pad">
+    <div class="eyebrow" data-anim>Agenda</div>
+    <h2 data-anim>One app, three modules, <span class="hl">48 minutes</span></h2>
+    <div class="body" style="gap: 28px; align-items: stretch; margin-top: 64px">
+      <div class="card col grow" data-anim style="gap: 18px"><span class="label">0:00 · 3 min</span><h3><svg class="icon" style="fill: var(--fg)"><use href="#i-rocket"/></svg>Kickoff</h3><p>Tour the app, the repo instructions, prompt files and agents</p></div>
+      <div class="card ai col grow" data-anim style="gap: 18px"><span class="label" style="color: #d2b8ff">0:03 · 13 min</span><h3><svg class="icon" style="fill: #d2b8ff"><use href="#i-file"/></svg>Module 6</h3><p><span class="k">Scaffolding.</span> A feature brief becomes working code across API, service and UI</p></div>
+      <div class="card bad col grow" data-anim style="gap: 18px"><span class="label" style="color: #ffa198">0:16 · 16 min</span><h3><svg class="icon" style="fill: #ffa198"><use href="#i-bug"/></svg>Module 7</h3><p><span class="k">Debugging and RCA.</span> Logs, request IDs and the contract lead to root causes</p></div>
+      <div class="card info col grow" data-anim style="gap: 18px"><span class="label" style="color: #a5d6ff">0:32 · 14 min</span><h3><svg class="icon" style="fill: #a5d6ff"><use href="#i-beaker"/></svg>Module 8</h3><p><span class="k">Testing.</span> TDD, BDD and spec-driven development, tests first</p></div>
+      <div class="card col grow" data-anim style="gap: 18px"><span class="label">0:46 · 2 min</span><h3><svg class="icon" style="fill: var(--fg)"><use href="#i-checklist"/></svg>Wrap-up</h3><p>Three habits to take back to your team</p></div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>02</span></div>
+</div>
+
+<!-- ============================ 2 · THE APP ============================ -->
+<div id="s-app" class="scene-frame" data-composition-id="app" data-start="8" data-duration="4" data-width="1920" data-height="1080" data-label="The app">
+  <div class="pad">
+    <div class="eyebrow" data-anim>Meet the app</div>
+    <h2 data-anim>Contoso Outfitters is a real storefront that's <span class="hl">still in development</span></h2>
+    <div class="body" style="flex-direction: column; gap: 30px; margin-top: 36px">
+      <div class="browser" data-anim style="width: 1480px">
+        <div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">localhost:5173</span></div>
+        <div class="shot"><img src="assets/screens/start-shop.png" alt="Contoso Outfitters shop with product grid and empty cart" /></div>
+      </div>
+      <div class="row" data-anim>
+        <span class="pill"><code>client/</code>&nbsp;React 18 + Vite</span>
+        <span class="pill"><code>server-node/</code>&nbsp;Express 5</span>
+        <span class="pill"><code>server-java/</code>&nbsp;Spring Boot 3</span>
+        <span class="pill p">One contract: <code>docs/API.md</code></span>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>03</span></div>
+</div>
+
+<!-- ============================ 3 · RULES ============================ -->
+<div id="s-rules" class="scene-frame" data-composition-id="rules" data-start="12" data-duration="4" data-width="1920" data-height="1080" data-label="Repo rules">
+  <div class="pad">
+    <div class="eyebrow" data-anim>Grounding</div>
+    <h2 data-anim>Copilot works inside <span class="hl">your repo's rules</span>, not a toy snippet</h2>
+    <div class="body" style="gap: 32px">
+      <div class="card ai col grow" data-anim>
+        <h3><svg class="icon" style="fill: #d2b8ff"><use href="#i-book"/></svg><code style="font-size: 30px">copilot-instructions.md</code></h3>
+        <ul><li><span class="k">Parity rule:</span> change one backend, change both and update the contract</li><li>Structured logs with a <code>requestId</code></li><li>Error envelope, no stack traces, no PII in logs</li></ul>
+      </div>
+      <div class="card ai col grow" data-anim>
+        <h3><svg class="icon" style="fill: #d2b8ff"><use href="#i-file"/></svg><code style="font-size: 30px">prompts/</code></h3>
+        <ul><li>Reusable slash commands</li><li><code>/scaffold-feature</code> <code>/rca</code></li><li><code>/fix-and-prove</code> <code>/tdd-next</code></li><li><code>/bdd-steps</code> <code>/sdd-plan</code></li></ul>
+      </div>
+      <div class="card ai col grow" data-anim>
+        <h3><svg class="icon" style="fill: #d2b8ff"><use href="#i-copilot"/></svg><code style="font-size: 30px">agents/</code></h3>
+        <ul><li><span class="k">debugger:</span> root cause, failing test, then fix</li><li><span class="k">test-writer:</span> tests only, never changes production code without asking</li><li>Per-stack <code>*.instructions.md</code> apply by path</li></ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>04</span></div>
+</div>
+
+<!-- ============================ 4 · M6 DIVIDER ============================ -->
+<div id="s-m6" class="scene-frame divider" data-composition-id="m6" data-start="16" data-duration="4" data-width="1920" data-height="1080" data-label="Module 6">
+  <div class="num" data-anim>06</div>
+  <div class="inner">
+    <div class="kicker grad-p" data-anim>Module 6 · 13 minutes</div>
+    <h1 data-anim>Scaffolding</h1>
+    <p class="sub" data-anim>From a feature brief to working, tested code across API, service and UI, following the patterns already in the repo.</p>
+    <div class="row" data-anim><span class="pill p">Inline completion</span><span class="pill p">Agent mode</span><span class="pill p">Prompt files</span></div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>05</span></div>
+</div>
+
+<!-- ============================ 5 · M6 LINE ============================ -->
+<div id="s-m6-line" class="scene-frame" data-composition-id="m6-line" data-start="20" data-duration="4" data-width="1920" data-height="1080" data-label="Comment-driven completion">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m6">Module 6 · Step 1</span>Line-level completion</div>
+    <h2 data-anim>The comment <span class="hl">is</span> the prompt</h2>
+    <div class="body">
+      <div class="col" style="width: 1080px">
+        <div class="code" data-anim>
+          <div class="bar"><svg><use href="#i-file"/></svg>server-node/src/routes/catalog.js</div>
+<pre><span class="c-kw">export const</span> <span class="c-fn">catalogRoutes</span> = ({ store }) =&gt; {
+  <span class="c-kw">const</span> router = <span class="c-fn">Router</span>();
+  router.<span class="c-fn">get</span>(<span class="c-str">'/products'</span>, ...);
+  <span class="c-cm">// GET /products/:sku returns one product, or throws</span>
+  <span class="c-cm">// NotFoundError if the SKU doesn't exist</span>
+<span class="c-ghost">  router.get('/products/:sku', (req, res) =&gt; {
+    const product = store.findProduct(req.params.sku);
+    if (!product) throw new NotFoundError(...);
+    res.json(product);
+  });</span>
+  <span class="c-kw">return</span> router;
+};</pre>
+        </div>
+      </div>
+      <div class="col grow">
+        <div class="card ai" data-anim><h3><svg class="icon" style="fill: #d2b8ff"><use href="#i-bulb"/></svg>What to point out</h3><p>It reaches for <code>NotFoundError</code> from <code>src/errors.js</code> without being told. The style comes from the file around it.</p></div>
+        <div class="card" data-anim><h3><svg class="icon" style="fill: var(--fg)"><use href="#i-file"/></svg>Java version</h3><p><code>CatalogController.java</code>, under <code>products()</code>:</p><p class="mono" style="font-size: 25px; color: var(--muted); margin-top: 12px">&#47;** Returns one product by SKU, or throws NotFoundException if it doesn't exist. *&#47;</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>06</span></div>
+</div>
+
+<!-- ============================ 6 · M6 STORY ============================ -->
+<div id="s-m6-story" class="scene-frame" data-composition-id="m6-story" data-start="24" data-duration="4" data-width="1920" data-height="1080" data-label="Scenario: loyalty points">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m6">Module 6 · Scenario</span>specs/loyalty-points/FEATURE.md</div>
+    <h2 data-anim>Every customer has loyalty points, but <span class="hl">nothing reads them</span></h2>
+    <div class="body">
+      <div class="col" style="width: 860px; gap: 36px">
+        <p class="quote" data-anim>As a returning customer, I want to earn points when I place an order and see and redeem my balance at checkout, so I have a reason to come back.</p>
+        <div class="row" data-anim><span class="pill">Ada Lovelace · C-100</span><span class="pill p">120 points in seed.json</span></div>
+        <div class="card" data-anim><p><span class="k">Out of scope:</span> point expiry, discounts from points, tiers and bonuses. Module 8 adds those test-first.</p></div>
+      </div>
+      <div class="col grow">
+        <table class="tbl" data-anim>
+          <tr><th>The brief asks for</th><th>Detail</th></tr>
+          <tr><td class="k"><code>GET /customers/{id}/loyalty</code></td><td>Balance, or 404</td></tr>
+          <tr><td class="k"><code>POST …/loyalty/redeem</code></td><td>400 · 404 · 409 INSUFFICIENT_POINTS</td></tr>
+          <tr><td class="k">Earn on checkout</td><td>1 point per whole dollar, in its own calculator</td></tr>
+          <tr><td class="k">Loyalty panel</td><td>Under the cart, hidden for guests</td></tr>
+          <tr><td class="k">Two log lines</td><td>earned and redeemed, no PII</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>07</span></div>
+</div>
+
+<!-- ============================ 7 · M6 PROMPT ============================ -->
+<div id="s-m6-prompt" class="scene-frame" data-composition-id="m6-prompt" data-start="28" data-duration="4" data-width="1920" data-height="1080" data-label="Scaffold prompt">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m6">Module 6 · Step 2</span>Agent mode</div>
+    <h2 data-anim>One prompt file scaffolds the feature, but <span class="hl">plans before it codes</span></h2>
+    <div class="body">
+      <div class="col" style="width: 1000px">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat<span class="mode">Agent</span></div>
+<pre><span class="c-cmd">/scaffold-feature</span> spec=<span class="c-ref">specs/loyalty-points/FEATURE.md</span> stack=node</pre>
+        </div>
+        <div class="card" data-anim>
+          <p class="label" style="margin-bottom: 14px">Without the prompt file</p>
+          <p class="mono" style="font-size: 26px; line-height: 1.5; color: var(--subtle)"><span class="c-ref">#codebase</span> Implement specs/loyalty-points/FEATURE.md for server-node and the client. Follow the patterns in the pricing and orders features. Show me a file plan first.</p>
+        </div>
+      </div>
+      <div class="col grow">
+        <div class="steps" data-anim>
+          <div class="step"><span class="n">1</span>Reads the <b>spec</b>, <b>docs/API.md</b> and the instructions</div>
+          <div class="step"><span class="n">2</span>Finds the <b>closest feature</b> to mirror</div>
+          <div class="step stop"><span class="n">3</span>Shows a <b>file plan</b> and stops</div>
+          <div class="step"><span class="n">4</span>You review it and reply <b>Approved</b></div>
+          <div class="step"><span class="n">5</span>Builds service, route, UI, contract</div>
+          <div class="step go"><span class="n">6</span>Writes tests and <b>runs the suite</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>08</span></div>
+</div>
+
+<!-- ============================ 8 · M6 PLAN ============================ -->
+<div id="s-m6-plan" class="scene-frame" data-composition-id="m6-plan" data-start="32" data-duration="4" data-width="1920" data-height="1080" data-label="Expected file plan">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m6">Module 6 · What to expect</span>The file plan</div>
+    <h2 data-anim>Expect 6 to 9 files that <span class="hl">copy the pricing feature's shape</span></h2>
+    <div class="body" style="flex-direction: column; gap: 28px">
+      <table class="tbl" data-anim>
+        <tr><th style="width: 18%">Layer</th><th>Node</th><th>Java</th></tr>
+        <tr><td class="k">Service</td><td><code>loyaltyCalculator.js</code>, <code>loyaltyService.js</code></td><td><code>loyalty/</code> package: Calculator, Service, records</td></tr>
+        <tr><td class="k">API</td><td><code>routes/loyalty.js</code>, edits to <code>app.js</code>, <code>orderService.js</code>, <code>errors.js</code></td><td><code>LoyaltyController</code>, <code>InsufficientPointsException</code>, edits to <code>Order</code>, <code>OrderService</code></td></tr>
+        <tr><td class="k">Client</td><td colspan="2"><code>api/client.js</code>, <code>components/LoyaltyPanel.jsx</code>, <code>App.jsx</code></td></tr>
+        <tr><td class="k">Tests</td><td><code>test/loyalty.test.js</code></td><td><code>LoyaltyControllerTest</code></td></tr>
+      </table>
+      <div class="row" data-anim><span class="pill g"><svg class="icon"><use href="#i-check"/></svg>Constructor injection</span><span class="pill g"><svg class="icon"><use href="#i-check"/></svg>Existing error hierarchy</span><span class="pill g"><svg class="icon"><use href="#i-check"/></svg>Structured logger</span><span class="pill g"><svg class="icon"><use href="#i-check"/></svg>docs/API.md updated</span></div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>09</span></div>
+</div>
+
+<!-- ============================ 9 · M6 RESULT ============================ -->
+<div id="s-m6-result" class="scene-frame" data-composition-id="m6-result" data-start="36" data-duration="4" data-width="1920" data-height="1080" data-label="Loyalty result">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m6">Module 6 · Result</span>Verify in the browser</div>
+    <h2 data-anim>Ada buys trail shoes for $97.19 and <span class="hl-g">earns 97 points</span></h2>
+    <div class="body" style="flex-direction: column; gap: 26px; margin-top: 32px">
+      <div class="browser" data-anim style="width: 1400px">
+        <div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">localhost:5173</span></div>
+        <div class="shot"><img src="assets/screens/fix-loyalty-earned.png" alt="Order placed banner: you earned 97 points; Loyalty panel shows 217 points" /><div class="ring g" style="left: 1%; top: 10.5%; width: 98%; height: 7.5%"></div><div class="ring g" style="left: 72.6%; top: 56%; width: 26.4%; height: 39%"></div></div>
+      </div>
+      <div class="row" data-anim><span class="pill">120 points to start</span><span class="pill">+97 for a $97.19 order</span><span class="pill g">217 points now</span><span class="pill p">Then redeem 50</span></div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>10</span></div>
+</div>
+
+<!-- ============================ 10 · M6 PROMPT FILE ============================ -->
+<div id="s-m6-promptfile" class="scene-frame" data-composition-id="m6-promptfile" data-start="40" data-duration="4" data-width="1920" data-height="1080" data-label="Prompt file anatomy">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m6">Module 6 · Step 3</span>Reuse</div>
+    <h2 data-anim>A prompt file turns a good prompt into a <span class="hl">team workflow</span></h2>
+    <div class="body">
+      <div class="code" data-anim style="width: 1060px">
+        <div class="bar"><svg><use href="#i-file"/></svg>.github/prompts/scaffold-feature.prompt.md</div>
+<pre><span class="c-cm">---</span>
+<span class="c-kw">name:</span> scaffold-feature
+<span class="c-kw">agent:</span> <span class="c-ok">agent</span>
+<span class="c-kw">argument-hint:</span> <span class="c-str">"spec=… stack=node|java|both"</span>
+<span class="c-cm">---</span>
+Scaffold the feature in <span class="c-ref">${input:spec}</span>
+for backend <span class="c-ref">${input:stack}</span>.
+
+Before you write any code:
+1. Read the spec, docs/API.md, instructions
+2. Find the closest existing feature
+3. <span class="c-warn">Show me a file plan and wait for my OK</span></pre>
+      </div>
+      <div class="col grow">
+        <div class="card ai" data-anim><h3><span class="mono" style="color: #7ee787">agent: agent</span></h3><p>Runs in Agent mode, so it can edit files and run tests</p></div>
+        <div class="card info" data-anim><h3><span class="mono" style="color: #79c0ff">${input:…}</span></h3><p>One prompt serves any spec and either stack</p></div>
+        <div class="card" data-anim style="border-color: rgba(210, 153, 34, 0.6)"><h3 style="color: #e3b341">Plan → approve → build → test</h3><p>The structure is what makes the output predictable</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>11</span></div>
+</div>
+
+<!-- ============================ 11 · M7 DIVIDER ============================ -->
+<div id="s-m7" class="scene-frame divider m7" data-composition-id="m7" data-start="44" data-duration="4" data-width="1920" data-height="1080" data-label="Module 7">
+  <div class="num" data-anim>07</div>
+  <div class="inner">
+    <div class="kicker grad-r" data-anim>Module 7 · 16 minutes</div>
+    <h1 data-anim>Debugging and RCA</h1>
+    <p class="sub" data-anim>Use real evidence (stack traces, logs, terminal output and the API contract) to find root causes, then prove each fix with a test.</p>
+    <div class="row" data-anim><span class="pill r">Runtime exception</span><span class="pill r">Silent logic defect</span><span class="pill r">Data integrity</span><span class="pill r">Build error</span></div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>12</span></div>
+</div>
+
+<!-- ============================ 12 · M7 EVIDENCE ============================ -->
+<div id="s-m7-evidence" class="scene-frame m7" data-composition-id="m7-evidence" data-start="48" data-duration="4" data-width="1920" data-height="1080" data-label="Create the evidence">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m7">Module 7 · Step 0</span>Create the evidence</div>
+    <h2 data-anim>Five symptoms, and <span class="hl-r">each needs a different prompt</span></h2>
+    <div class="body" style="margin-top: 36px">
+      <table class="tbl" data-anim>
+        <tr><th style="width: 27%">Do this</th><th style="width: 26%">You see</th><th style="width: 19%">Defect type</th><th>Prompting strategy</th></tr>
+        <tr><td class="k">Add Gift Card to cart</td><td><span class="c-err">500</span> + request ID</td><td>Runtime exception</td><td>Request ID + logs, trace before fixing</td></tr>
+        <tr><td class="k">Rain Jacket + <code>SAVE10</code></td><td>Tax <span class="c-err">11.92</span>, total 146.02</td><td>Silent logic</td><td>Expected vs actual + the contract</td></tr>
+        <tr><td class="k">Apply <code>SAVE99</code></td><td>Node: <span class="c-err">accepted</span>, −$0.00</td><td>Contract violation</td><td>Ask why, compare both stacks</td></tr>
+        <tr><td class="k">Inventory → Reconcile</td><td><span class="c-err">500</span> + request ID</td><td>Data integrity</td><td>Debugger agent, check the numbers</td></tr>
+        <tr><td class="k">Demo: break the build</td><td>Won't start or compile</td><td>Build error</td><td><code>#terminalLastCommand</code>: explain why</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>13</span></div>
+</div>
+
+<!-- ============================ 13 · M7 CRASH ============================ -->
+<div id="s-m7-crash" class="scene-frame m7" data-composition-id="m7-crash" data-start="52" data-duration="4" data-width="1920" data-height="1080" data-label="Gift card 500">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m7">Scenario 1 · Runtime exception</span>Shop tab</div>
+    <h2 data-anim>Adding a Gift Card to the cart <span class="hl-r">returns a 500</span></h2>
+    <div class="body">
+      <div class="col" style="width: 700px">
+        <div class="browser" data-anim>
+          <div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">localhost:5173 · Cart</span></div>
+          <div class="crop" data-fx="0.732" data-fy="0.15" data-fw="0.256" data-fh="0.68" data-ar="0.3479" data-w="700"><img src="assets/screens/bug-giftcard-500.png" alt="Cart showing INTERNAL_ERROR with request 1a6f5cc8" /></div>
+        </div>
+      </div>
+      <div class="col grow">
+        <div class="card bad" data-anim><h3 style="color: #ffa198"><svg class="icon"><use href="#i-alert"/></svg>The symptom</h3><p>The quote fails with <span class="k">INTERNAL_ERROR</span>. No stack trace leaks to the browser, which is correct.</p></div>
+        <div class="card" data-anim><h3><svg class="icon" style="fill: var(--fg)"><use href="#i-bulb"/></svg>The thread to pull</h3><p>The banner shows <code class="c-ref">request 1a6f5cc8</code>. Every log line for this request carries that ID in <code>logs/app.log</code>.</p></div>
+        <div class="row" data-anim><span class="pill r">Node: 500</span><span class="pill r">Java: 500</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>14</span></div>
+</div>
+
+<!-- ============================ 14 · M7 CRASH RCA ============================ -->
+<div id="s-m7-crash-rca" class="scene-frame m7" data-composition-id="m7-crash-rca" data-start="56" data-duration="4" data-width="1920" data-height="1080" data-label="Gift card RCA">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m7">Scenario 1 · Diagnose</span>Ask mode</div>
+    <h2 data-anim>Give Copilot the request ID and the log, then <span class="hl">ask for the root cause</span></h2>
+    <div class="body">
+      <div class="col" style="width: 1040px">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat<span class="mode">Ask</span></div>
+<pre><span class="c-cmd">/rca</span> Checkout with a Gift Card in the cart returns 500. Request ID 1a6f5cc8. <span class="c-ref">#file:logs/app.log</span></pre>
+        </div>
+        <div class="code" data-anim>
+          <div class="bar"><svg><use href="#i-terminal"/></svg>logs/app.log</div>
+<pre style="font-size: 23px"><span class="c-err">ERROR</span> [1a6f5cc8] ErrorHandler - Unhandled error on POST /api/cart/quote
+<span class="c-err">TypeError: Cannot read properties of null (reading 'amount')</span>
+    at #priceLine (src/services/pricingService.js:66:37)</pre>
+        </div>
+      </div>
+      <div class="col grow">
+        <div class="card ai" data-anim><h3 style="color: #d2b8ff">Root cause</h3><p><code>SKU-1006</code> has <code>"price": null</code> in the seed data, and pricing assumes every product has a price.</p></div>
+        <div class="card" data-anim><h3>Blast radius</h3><p>Java fails too: <code>NullPointerException</code> in <code>PricingService.priceLine</code>.</p></div>
+        <div class="card info" data-anim><h3 style="color: #a5d6ff">The better question</h3><p>Should unpriced products be sellable at all? That's a product decision, not a null check.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>15</span></div>
+</div>
+
+<!-- ============================ 15 · M7 CRASH FIX ============================ -->
+<div id="s-m7-crash-fix" class="scene-frame m7" data-composition-id="m7-crash-fix" data-start="60" data-duration="4" data-width="1920" data-height="1080" data-label="Gift card fix">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m7">Scenario 1 · Fix and prove</span>debugger agent</div>
+    <h2 data-anim>Fix the cause, <span class="hl-g">prove it with a failing test first</span></h2>
+    <div class="body">
+      <div class="col" style="width: 1020px">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat<span class="mode">@debugger</span></div>
+<pre>Fix the Gift Card checkout crash using the option you recommended. Write the failing test first.</pre>
+        </div>
+        <div class="row" data-anim style="align-items: stretch; gap: 22px">
+          <div class="card ok grow"><h3 style="color: #7ee787"><svg class="icon"><use href="#i-check"/></svg>Good fix</h3><p>Validate and return <span class="k">400 VALIDATION_ERROR</span> with a clear message, in both backends</p></div>
+          <div class="card bad grow"><h3 style="color: #ffa198"><svg class="icon"><use href="#i-x"/></svg>Bad fixes</h3><p>Price it at <code>0</code>, or wrap it in <code>try/catch</code></p></div>
+        </div>
+      </div>
+      <div class="col grow">
+        <div class="browser" data-anim>
+          <div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">After the fix</span></div>
+          <div class="crop" data-fx="0.732" data-fy="0.15" data-fw="0.256" data-fh="0.66" data-ar="0.3479" data-w="600"><img src="assets/screens/fix-giftcard-400.png" alt="Cart showing VALIDATION_ERROR: Product SKU-1006 has no price and cannot be purchased" /></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>16</span></div>
+</div>
+
+<!-- ============================ 16 · M7 TAX ============================ -->
+<div id="s-m7-tax" class="scene-frame m7" data-composition-id="m7-tax" data-start="64" data-duration="4" data-width="1920" data-height="1080" data-label="Silent tax defect">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m7">Scenario 2 · Silent logic defect</span>Shop tab</div>
+    <h2 data-anim>The rain jacket quote is wrong, and <span class="hl-r">nothing errors</span></h2>
+    <div class="body">
+      <div class="col" style="width: 700px">
+        <div class="browser" data-anim>
+          <div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">Rain Jacket + SAVE10</span></div>
+          <div class="crop" data-fx="0.732" data-fy="0.36" data-fw="0.256" data-fh="0.47" data-ar="0.3479" data-w="700"><img src="assets/screens/bug-save10-tax.png" alt="Cart totals: subtotal 149.00, SAVE10 minus 14.90, tax 11.92, total 146.02" /></div>
+        </div>
+      </div>
+      <div class="col grow" style="gap: 24px">
+        <div class="card bad" data-anim><p class="label" style="color: #ffa198">What the app does</p><p class="mono" style="font-size: 36px; color: var(--fg); margin-top: 10px">149.00 × 0.08 = <span class="c-err">11.92</span></p></div>
+        <div class="card ok" data-anim><p class="label" style="color: #7ee787">What the contract says</p><p class="mono" style="font-size: 36px; color: var(--fg); margin-top: 10px">(149.00 − 14.90) × 0.08 = <span class="c-ok">10.73</span></p></div>
+        <p class="quote" data-anim style="font-size: 34px">"Tax is charged on the <b>discounted</b> amount." <span style="color: var(--muted)">docs/API.md</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>17</span></div>
+</div>
+
+<!-- ============================ 17 · M7 TAX FIX ============================ -->
+<div id="s-m7-tax-fix" class="scene-frame m7" data-composition-id="m7-tax-fix" data-start="68" data-duration="4" data-width="1920" data-height="1080" data-label="Tax fix">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m7">Scenario 2 · Diagnose and fix</span>Expected vs actual</div>
+    <h2 data-anim>Give it the numbers and the contract, and <span class="hl">ask it to explain first</span></h2>
+    <div class="body">
+      <div class="col" style="width: 1100px">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat<span class="mode">Ask</span></div>
+<pre style="font-size: 25px"><span class="c-ref">#file:docs/API.md #file:logs/app.log</span>
+For SKU-1004 x1 with promo SAVE10, the quote shows subtotal 149.00, discount 14.90, tax 11.92 and total 146.02. Using the pricing rules in the API contract, what should tax and total be? Find the line of code responsible. Explain before you fix.</pre>
+        </div>
+        <div class="code" data-anim>
+          <div class="bar"><svg><use href="#i-terminal"/></svg>The evidence in the log</div>
+<pre style="font-size: 22px">quote computed subtotal=149 promo=SAVE10 discount=14.9 taxRate=0.08 <span class="c-err">tax=11.92</span> total=146.02</pre>
+        </div>
+      </div>
+      <div class="col grow">
+        <div class="browser" data-anim>
+          <div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">After /fix-and-prove</span></div>
+          <div class="crop" data-fx="0.732" data-fy="0.36" data-fw="0.256" data-fh="0.47" data-ar="0.3479" data-w="520"><img src="assets/screens/fix-save10-tax.png" alt="Cart totals: tax 10.73, total 144.83" /></div>
+        </div>
+        <div class="row" data-anim><span class="pill p"><span class="c-cmd">/fix-and-prove</span></span><span class="pill g">10.73 · 144.83</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>18</span></div>
+</div>
+
+<!-- ============================ 18 · M7 PROMO ============================ -->
+<div id="s-m7-promo" class="scene-frame m7" data-composition-id="m7-promo" data-start="72" data-duration="4" data-width="1920" data-height="1080" data-label="SAVE99 parity">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m7">Bonus · Contract violation</span>Node only</div>
+    <h2 data-anim>An unknown promo code is <span class="hl-r">silently accepted</span> on Node</h2>
+    <div class="body" style="gap: 40px">
+      <div class="col" style="width: 560px">
+        <div class="browser" data-anim>
+          <div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">Before</span></div>
+          <div class="crop" data-fx="0.732" data-fy="0.43" data-fw="0.256" data-fh="0.33" data-ar="0.3479" data-w="560"><img src="assets/screens/bug-save99-accepted.png" alt="Promo SAVE99 accepted with minus 0.00 discount" /></div>
+        </div>
+        <div class="browser" data-anim>
+          <div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">After</span></div>
+          <div class="crop" data-fx="0.732" data-fy="0.45" data-fw="0.256" data-fh="0.24" data-ar="0.3479" data-w="560"><img src="assets/screens/fix-save99-rejected.png" alt="INVALID_PROMO: Promo code SAVE99 is not valid" /></div>
+        </div>
+      </div>
+      <div class="col grow">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat<span class="mode">Ask</span></div>
+<pre>Why was SAVE99 accepted? The contract says unknown codes are 400 INVALID_PROMO.</pre>
+        </div>
+        <div class="code" data-anim>
+          <div class="bar"><svg><use href="#i-file"/></svg>The root cause</div>
+<pre style="font-size: 25px"><span class="c-kw">const</span> promo = promos.<span class="c-fn">get</span>(code); <span class="c-cm">// undefined</span>
+<span class="c-kw">if</span> (promo <span class="c-err">=== null</span>) <span class="c-kw">throw</span> …     <span class="c-cm">// never true</span>
+… promo<span class="c-err">?.</span>percent …              <span class="c-cm">// hides it</span></pre>
+        </div>
+        <div class="card info" data-anim><p><span class="k">Parity talking point:</span> Java uses <code>Optional.orElseThrow()</code> and never had this bug.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>19</span></div>
+</div>
+
+<!-- ============================ 19 · M7 RECON ============================ -->
+<div id="s-m7-recon" class="scene-frame m7" data-composition-id="m7-recon" data-start="76" data-duration="4" data-width="1920" data-height="1080" data-label="Reconcile 500">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m7">Scenario 3 · Data integrity</span>Inventory tab</div>
+    <h2 data-anim>Reconcile crashes on a SKU <span class="hl-r">nobody ever registered</span></h2>
+    <div class="body">
+      <div class="col" style="width: 760px">
+        <div class="browser" data-anim>
+          <div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">localhost:5173 · Inventory</span></div>
+          <div class="crop" data-fx="0.505" data-fy="0.12" data-fw="0.48" data-fh="0.82" data-ar="0.3333" data-w="760"><img src="assets/screens/bug-reconcile-500.png" alt="Reconcile stock count with SKU-99871 in the sheet, INTERNAL_ERROR request cca5e65e" /></div>
+        </div>
+        <div class="code" data-anim>
+          <div class="bar"><svg><use href="#i-terminal"/></svg>logs/app.log</div>
+<pre style="font-size: 21px"><span class="c-err">TypeError: Cannot read properties of undefined (reading 'onHand')</span>
+    at InventoryService.reconcile (inventoryService.js:39:50)</pre>
+        </div>
+      </div>
+      <div class="col grow">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat<span class="mode">@debugger</span></div>
+<pre style="font-size: 26px">Reconciling the warehouse count sheet in the Inventory tab returns 500. Find the request in <span class="c-ref">logs/app.log</span>, explain the root cause, and fix it so it meets the contract in <span class="c-ref">docs/API.md</span> (unknown SKUs are skipped and reported, and averageVariance is the mean absolute variance).</pre>
+        </div>
+        <div class="card" data-anim><p><span class="k">Java:</span> <code>NullPointerException … because "expected" is null</code>, an unboxing crash on the same SKU.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>20</span></div>
+</div>
+
+<!-- ============================ 20 · M7 RECON PARITY ============================ -->
+<div id="s-m7-recon-parity" class="scene-frame m7" data-composition-id="m7-recon-parity" data-start="80" data-duration="4" data-width="1920" data-height="1080" data-label="Reconcile parity">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m7">Scenario 3 · Check the numbers</span>Two stacks, two failures</div>
+    <h2 data-anim>The crash fix isn't the whole fix: <span class="hl">the numbers are still wrong</span></h2>
+    <div class="body">
+      <div class="col" style="width: 1060px">
+        <table class="tbl" data-anim>
+          <tr><th style="width: 30%">After "skip unknown"</th><th>Node</th><th>Java</th></tr>
+          <tr><td class="k">Variance rows</td><td>2</td><td><span class="c-err">4</span> (SKU-1002, 1003 show 0)</td></tr>
+          <tr><td class="k">Average</td><td><span class="c-err">0.5</span></td><td><span class="c-err">0.25</span></td></tr>
+          <tr><td class="k">Remaining bug</td><td>Signed average: (−2 + 3) / 2</td><td>Signed average <b>and</b> <code>Integer != Integer</code> above 127</td></tr>
+        </table>
+        <div class="card ai" data-anim><h3 style="color: #d2b8ff">Java talking point</h3><p>250 equals 250, but two boxed 250s are different objects. The JVM only caches −128 to 127, so tests with small numbers never catch it. Ask for a test with stock above 127.</p></div>
+      </div>
+      <div class="col grow">
+        <div class="browser" data-anim>
+          <div class="chrome"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">Correct result</span></div>
+          <div class="crop" data-fx="0.505" data-fy="0.56" data-fw="0.48" data-fh="0.40" data-ar="0.4021" data-w="600"><img src="assets/screens/fix-reconcile.png" alt="Variances SKU-1001 -2 and SKU-1004 3, average variance 2.5, SKU-99871 skipped" /></div>
+        </div>
+        <div class="row" data-anim><span class="pill g">avg 2.5</span><span class="pill y">unknownSkus: SKU-99871</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>21</span></div>
+</div>
+
+<!-- ============================ 21 · M7 BUILD ============================ -->
+<div id="s-m7-build" class="scene-frame m7" data-composition-id="m7-build" data-start="84" data-duration="4" data-width="1920" data-height="1080" data-label="Build error">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m7">Scenario 4 · Build error</span>Demo: break the build</div>
+    <h2 data-anim>A teammate pushed a <span class="hl-r">half-finished rename</span></h2>
+    <div class="body">
+      <div class="col" style="width: 1000px">
+        <div class="code" data-anim>
+          <div class="bar"><svg><use href="#i-terminal"/></svg>Node · npm start</div>
+<pre style="font-size: 23px"><span class="c-err">SyntaxError:</span> The requested module './services/pricingService.js' does not provide an export named 'PricingService'</pre>
+        </div>
+        <div class="code" data-anim>
+          <div class="bar"><svg><use href="#i-terminal"/></svg>Java · mvn -q compile</div>
+<pre style="font-size: 23px"><span class="c-err">cannot find symbol:</span> method quote(QuoteRequest)
+  in CartController and OrderService</pre>
+        </div>
+        <div class="card" data-anim style="border-color: rgba(210, 153, 34, 0.6)"><p><span class="k" style="color: #e3b341">Tip:</span> run it in a regular terminal, not a task terminal, so <code>#terminalLastCommand</code> can see it.</p></div>
+      </div>
+      <div class="col grow">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat<span class="mode">Ask</span></div>
+<pre style="font-size: 26px"><span class="c-ref">#terminalLastCommand</span> Explain this failure. What was the refactor trying to do, and what's the minimal change that completes it without changing the public contract?</pre>
+        </div>
+        <div class="steps" data-anim>
+          <div class="step"><span class="n">A</span>Revert the rename</div>
+          <div class="step go"><span class="n">B</span>Finish it: update every caller</div>
+          <div class="step stop"><span class="n">?</span>Ask: which keeps the public API stable?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>22</span></div>
+</div>
+
+<!-- ============================ 22 · M8 DIVIDER ============================ -->
+<div id="s-m8" class="scene-frame divider m8" data-composition-id="m8" data-start="88" data-duration="4" data-width="1920" data-height="1080" data-label="Module 8">
+  <div class="num" data-anim>08</div>
+  <div class="inner">
+    <div class="kicker grad-b" data-anim>Module 8 · 14 minutes</div>
+    <h1 data-anim>Testing</h1>
+    <p class="sub" data-anim>Use Copilot to write tests first and let them drive the implementation.</p>
+    <div class="row" data-anim><span class="pill b">TDD</span><span class="pill b">BDD</span><span class="pill b">Spec-driven</span><span class="pill b">/doc</span></div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>23</span></div>
+</div>
+
+<!-- ============================ 23 · M8 MENU ============================ -->
+<div id="s-m8-menu" class="scene-frame m8" data-composition-id="m8-menu" data-start="92" data-duration="4" data-width="1920" data-height="1080" data-label="Pick your exercises">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m8">Module 8</span>Choose two or three</div>
+    <h2 data-anim>Pick the exercises that <span class="hl-b">fit your audience</span></h2>
+    <div class="body" style="flex-direction: column; gap: 30px">
+      <div class="row" data-anim style="gap: 24px; align-items: stretch; flex-wrap: nowrap">
+        <div class="card info grow"><h3>A · TDD</h3><p>Loyalty calculator v2 · <code>/tdd-next</code> · 5 min</p></div>
+        <div class="card info grow"><h3>B · BDD</h3><p>Discount eligibility · <code>/bdd-steps</code> · 4 min</p></div>
+        <div class="card info grow"><h3>C · SDD</h3><p>Password reset · <code>/sdd-plan</code> · 4–8 min</p></div>
+        <div class="card info grow"><h3>D · Docs</h3><p>Anything you touched · <code>/doc</code> · 1–2 min</p></div>
+      </div>
+      <table class="tbl" data-anim>
+        <tr><th style="width: 40%">If the audience is…</th><th>Run</th></tr>
+        <tr><td class="k">Developers</td><td>A (TDD) + D (/doc) + C (plan only)</td></tr>
+        <tr><td class="k">QA or BA heavy</td><td>B (BDD) + C (SDD)</td></tr>
+        <tr><td class="k">Mixed (default)</td><td>A (two loops) + B</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>24</span></div>
+</div>
+
+<!-- ============================ 24 · M8 TDD ============================ -->
+<div id="s-m8-tdd" class="scene-frame m8" data-composition-id="m8-tdd" data-start="96" data-duration="4" data-width="1920" data-height="1080" data-label="TDD">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m8">Exercise A · TDD</span>specs/loyalty-points/REQUIREMENTS.md</div>
+    <h2 data-anim>One requirement, one failing test, <span class="hl-b">then stop</span></h2>
+    <div class="body">
+      <div class="col" style="width: 960px">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat<span class="mode">Agent</span></div>
+<pre><span class="c-cmd">/tdd-next</span> requirements=<span class="c-ref">specs/loyalty-points/REQUIREMENTS.md</span> stack=node</pre>
+        </div>
+        <div class="row" data-anim style="gap: 20px; flex-wrap: nowrap; align-items: stretch">
+          <div class="card bad" style="flex: 1 1 0; min-width: 0; text-align: center; padding: 26px"><p class="big-stat" style="color: var(--red); font-size: 56px">Red</p><p>Write one failing test</p></div>
+          <div class="card ok" style="flex: 1 1 0; min-width: 0; text-align: center; padding: 26px"><p class="big-stat" style="color: var(--green); font-size: 56px">Green</p><p>Minimum code to pass</p></div>
+          <div class="card info" style="flex: 1 1 0; min-width: 0; text-align: center; padding: 26px"><p class="big-stat" style="color: var(--blue); font-size: 56px">Refactor</p><p>Then stop and wait</p></div>
+        </div>
+      </div>
+      <div class="col grow">
+        <div class="card" data-anim><p class="label">Loop 1 · Requirement 2</p><p style="margin-top: 10px">10% bonus at $100 or more. The test <span class="mono k">$150 → 165</span> fails because v1 returns 150.</p></div>
+        <div class="card" data-anim><p class="label">Loop 2 · Requirement 3</p><p style="margin-top: 10px"><code>InvalidPurchaseError</code> for amounts ≤ 0 (<code>InvalidPurchaseException</code> in Java).</p></div>
+        <div class="card ai" data-anim><p><span class="k">Watch for:</span> checkout must not call the calculator with a $0 total.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>25</span></div>
+</div>
+
+<!-- ============================ 25 · M8 BDD ============================ -->
+<div id="s-m8-bdd" class="scene-frame m8" data-composition-id="m8-bdd" data-start="100" data-duration="4" data-width="1920" data-height="1080" data-label="BDD">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m8">Exercise B · BDD</span>discount-eligibility.feature</div>
+    <h2 data-anim>One <code style="font-size: 58px">.feature</code> file is the source of truth <span class="hl-b">for both stacks</span></h2>
+    <div class="body">
+      <div class="code" data-anim style="width: 1000px">
+        <div class="bar"><svg><use href="#i-file"/></svg>specs/discount-eligibility/discount-eligibility.feature</div>
+<pre style="font-size: 24px"><span class="c-kw">Background:</span>
+  <span class="c-kw">Given</span> the store has the following discount tiers:
+    | tier | minimum_items | minimum_subtotal | discount_percent |
+    | none | 0             | 0                | 0                |
+    | bulk | 10            | 0                | 5                |
+    | vip  | 0             | 500              | 15               |
+
+<span class="c-kw">Scenario:</span> Cart qualifies for both bulk and VIP thresholds
+  <span class="c-kw">Given</span> a cart with 15 items and a subtotal of $700.00
+  <span class="c-kw">When</span> the discount tier is calculated
+  <span class="c-kw">Then</span> the applied discount tier should be <span class="c-str">"vip"</span></pre>
+      </div>
+      <div class="col grow">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat<span class="mode">Agent</span></div>
+<pre style="font-size: 25px"><span class="c-cmd">/bdd-steps</span> feature=<span class="c-ref">specs/discount-eligibility/discount-eligibility.feature</span> stack=java</pre>
+        </div>
+        <div class="card" data-anim><ul><li>Step definitions first, <span class="k">first run fails</span></li><li>The table becomes data, not <code>if</code>s</li><li>Boundaries 9 vs 10, 499.99 vs 500.00 drive <code>&gt;=</code></li><li>Highest <code>discount_percent</code> wins</li></ul></div>
+        <div class="row" data-anim><span class="pill g"><svg class="icon"><use href="#i-check"/></svg>8 scenarios pass</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>26</span></div>
+</div>
+
+<!-- ============================ 26 · M8 SDD ============================ -->
+<div id="s-m8-sdd" class="scene-frame m8" data-composition-id="m8-sdd" data-start="104" data-duration="4" data-width="1920" data-height="1080" data-label="SDD">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m8">Exercise C · Spec-driven</span>specs/password-reset/spec.md</div>
+    <h2 data-anim>Spec, then plan, then code, and <span class="hl-b">review the plan</span> before any of it runs</h2>
+    <div class="body">
+      <div class="col" style="width: 960px">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat<span class="mode">Agent</span></div>
+<pre><span class="c-cmd">/sdd-plan</span> spec=<span class="c-ref">specs/password-reset/spec.md</span> stack=node</pre>
+        </div>
+        <div class="row" data-anim style="gap: 16px; flex-wrap: nowrap">
+          <span class="pill">spec.md</span><span style="font-size: 36px; color: var(--muted)">→</span><span class="pill y">plan.md (stops)</span><span style="font-size: 36px; color: var(--muted)">→</span><span class="pill">tests</span><span style="font-size: 36px; color: var(--muted)">→</span><span class="pill g">code</span>
+        </div>
+        <div class="card ok" data-anim><h3 style="color: #7ee787">A strong plan</h3><ul><li>Hashes tokens before storing them</li><li>Injects the clock and the random source</li><li>Maps every FR and NFR to a test</li></ul></div>
+      </div>
+      <div class="col grow">
+        <div class="card info" data-anim><p class="label" style="color: #a5d6ff">Ask the room</p><p style="margin-top: 12px; color: var(--fg)">What would leak if the token store were dumped?</p></div>
+        <div class="card info" data-anim><p class="label" style="color: #a5d6ff">Ask the room</p><p style="margin-top: 12px; color: var(--fg)">How do we test a 15-minute expiry without waiting 15 minutes?</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>27</span></div>
+</div>
+
+<!-- ============================ 27 · M8 DOC ============================ -->
+<div id="s-m8-doc" class="scene-frame m8" data-composition-id="m8-doc" data-start="108" data-duration="4" data-width="1920" data-height="1080" data-label="Documentation">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag m8">Exercise D · Docs</span>Anything you touched today</div>
+    <h2 data-anim>Generate the docs, then <span class="hl-b">check them against the tests</span></h2>
+    <div class="body" style="align-items: flex-start; gap: 48px; margin-top: 60px">
+      <div class="col" style="width: 860px">
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Copilot Chat · LoyaltyService selected</div>
+<pre style="font-size: 36px"><span class="c-cmd">/doc</span></pre>
+        </div>
+        <div class="prompt" data-anim>
+          <div class="bar"><svg><use href="#i-copilot"/></svg>Then ask</div>
+<pre style="font-size: 32px">Does this documentation match what the tests prove?</pre>
+        </div>
+      </div>
+      <div class="col grow">
+        <div class="card ai" data-anim><h3 style="color: #d2b8ff"><svg class="icon"><use href="#i-bulb"/></svg>Why it matters</h3><p>Docs that disagree with the tests are a bug report. The tests are the executable truth; the docs should say the same thing.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>28</span></div>
+</div>
+
+<!-- ============================ 28 · WRAP ============================ -->
+<div id="s-wrap" class="scene-frame" data-composition-id="wrap" data-start="112" data-duration="4" data-width="1920" data-height="1080" data-label="Wrap-up">
+  <div class="pad">
+    <div class="eyebrow" data-anim>Wrap-up</div>
+    <h2 data-anim>Three habits to take back to <span class="hl">your team</span></h2>
+    <div class="body" style="gap: 32px; margin-top: 56px">
+      <div class="card ai col grow" data-anim style="gap: 20px"><svg class="icon" style="width: 64px; height: 64px; fill: #d2b8ff"><use href="#i-file"/></svg><h3 style="font-size: 44px">Scaffold</h3><p>A spec plus repo instructions gives consistent, multi-layer code.</p></div>
+      <div class="card bad col grow" data-anim style="gap: 20px"><svg class="icon" style="width: 64px; height: 64px; fill: #ffa198"><use href="#i-bug"/></svg><h3 style="font-size: 44px">Debug</h3><p>Evidence first. Root cause before fix. Then prove it with a test.</p></div>
+      <div class="card info col grow" data-anim style="gap: 20px"><svg class="icon" style="width: 64px; height: 64px; fill: #a5d6ff"><use href="#i-beaker"/></svg><h3 style="font-size: 44px">Test</h3><p>Keep the loop small (TDD), make behavior the truth (BDD), plan before code (SDD).</p></div>
+    </div>
+    <p class="lede" data-anim style="margin-top: 40px">Two stacks, one contract: <span style="color: var(--fg); font-weight: 600">Copilot follows your conventions, not its favorite framework.</span></p>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>29</span></div>
+</div>
+
+<!-- ============================ 29 · RECOVERY ============================ -->
+<div id="s-recovery" class="scene-frame" data-composition-id="recovery" data-start="116" data-duration="4" data-width="1920" data-height="1080" data-label="Recovery">
+  <div class="pad">
+    <div class="eyebrow" data-anim><span class="tag"><svg class="icon"><use href="#i-sync"/></svg>Presenter reference</span>If something goes wrong</div>
+    <h2 data-anim>Every module has a <span class="hl-g">known-good checkpoint</span></h2>
+    <div class="body" style="gap: 40px">
+      <div class="col" style="width: 900px">
+        <table class="tbl" data-anim>
+          <tr><th>Stuck in…</th><th>Demo: jump to stage</th></tr>
+          <tr><td class="k">Module 6</td><td><code>01-scaffold</code></td></tr>
+          <tr><td class="k">Module 7</td><td><code>02-debug</code></td></tr>
+          <tr><td class="k">Module 8</td><td><code>03-tests</code></td></tr>
+          <tr><td class="k">Broken build demo</td><td>Demo: restore the build</td></tr>
+        </table>
+        <div class="card" data-anim style="border-color: rgba(210, 153, 34, 0.6)"><p><span class="k" style="color: #e3b341">Then restart the API.</span> Java has no hot reload.</p></div>
+      </div>
+      <div class="col grow">
+        <table class="tbl" data-anim>
+          <tr><th>Problem</th><th>Fix</th></tr>
+          <tr><td class="k">Badge says offline</td><td>Only one backend can use port 3001</td></tr>
+          <tr><td class="k">Port 3001 in use</td><td><code>lsof -ti :3001 | xargs kill</code></td></tr>
+          <tr><td class="k">Copilot quotes answers</td><td>Close <code>solutions/</code> tabs; keep <code>search.exclude</code></td></tr>
+          <tr><td class="k">Empty <code>#terminalLastCommand</code></td><td>Use a regular terminal</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>30</span></div>
+</div>
+
+<!-- ============================ 30 · THANKS ============================ -->
+<div id="s-thanks" class="scene-frame" data-composition-id="thanks" data-start="120" data-duration="4" data-width="1920" data-height="1080" data-label="Thank you">
+  <div class="pad" style="justify-content: center; align-items: center; text-align: center">
+    <svg class="icon" data-anim style="width: 140px; height: 140px; fill: var(--fg); margin-bottom: 48px"><use href="#i-mark"/></svg>
+    <h1 data-anim style="font-size: 150px; line-height: 1; font-weight: 900; letter-spacing: -0.045em">Thank <span class="grad-p">you</span></h1>
+    <p data-anim style="font-size: 46px; color: var(--subtle); margin-top: 36px">Build it. Break it. Prove it.</p>
+    <div class="row" data-anim style="margin-top: 60px; justify-content: center"><span class="pill p"><svg class="icon"><use href="#i-copilot"/></svg>docs.github.com/copilot</span><span class="pill"><svg class="icon"><use href="#i-pr"/></svg>Questions?</span></div>
+  </div>
+  <div class="footer"><span class="brand"><svg><use href="#i-mark"/></svg>GitHub Copilot workshop</span><span>31</span></div>
+</div>
+
+<script>
+(function () {
+  var SLIDE = 4;
+  var frames = Array.prototype.slice.call(document.querySelectorAll(".scene-frame"));
+  var TOTAL = frames.length * SLIDE;
+
+  // Crop screenshots to a focus region: fractions of the image, sized to the container width.
+  Array.prototype.forEach.call(document.querySelectorAll(".crop"), function (el) {
+    var fx = +el.dataset.fx, fy = +el.dataset.fy, fw = +el.dataset.fw, fh = +el.dataset.fh;
+    var ar = +el.dataset.ar, w = +el.dataset.w;
+    var imgW = w / fw, imgH = imgW * ar;
+    var img = el.querySelector("img");
+    el.style.width = w + "px";
+    el.style.height = Math.round(fh * imgH) + "px";
+    img.style.width = Math.round(imgW) + "px";
+    img.style.height = Math.round(imgH) + "px";
+    img.style.left = Math.round(-fx * imgW) + "px";
+    img.style.top = Math.round(-fy * imgH) + "px";
+  });
+
+  window.__timelines = window.__timelines || {};
+  var tl = gsap.timeline({ paused: true });
+  tl.to({}, { duration: TOTAL });
+  // The player drives the deck through the first scene's timeline key.
+  window.__timelines["title"] = tl;
+
+  var scenes = frames.map(function (el) {
+    var start = +el.getAttribute("data-start");
+    return { el: el, id: el.getAttribute("data-composition-id"), start: start, end: start + +el.getAttribute("data-duration") };
+  });
+
+  // Seeks suppress onUpdate, so frame visibility also lives on the timeline itself.
+  scenes.forEach(function (s) {
+    tl.set(frames, { opacity: 0, visibility: "hidden", pointerEvents: "none" }, s.start);
+    tl.set(s.el, { opacity: 1, visibility: "visible", pointerEvents: "auto" }, s.start);
+  });
+  var lastActive = null;
+
+  function entrance(el) {
+    var items = el.querySelectorAll("[data-anim]");
+    if (!items.length) return;
+    gsap.fromTo(items, { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.07, ease: "power2.out", overwrite: true });
+  }
+
+  function update(t) {
+    for (var i = 0; i < scenes.length; i++) {
+      var s = scenes[i];
+      var active = t >= s.start && (t < s.end || (i === scenes.length - 1 && t <= s.end));
+      s.el.style.opacity = active ? "1" : "0";
+      s.el.style.visibility = active ? "visible" : "hidden";
+      s.el.style.pointerEvents = active ? "auto" : "none";
+      if (active && lastActive !== s.id) {
+        lastActive = s.id;
+        entrance(s.el);
+      }
+    }
+  }
+  window.__hfSetTime = update;
+  update(0);
+  tl.eventCallback("onUpdate", function () { update(tl.time()); });
+
+  function postTimeline() {
+    parent.postMessage({
+      source: "hf-preview",
+      type: "timeline",
+      durationInFrames: TOTAL * 30,
+      scenes: scenes.map(function (s) { return { id: s.id, start: s.start, duration: s.end - s.start }; })
+    }, "*");
+  }
+  if (document.readyState === "complete") setTimeout(postTimeline, 300);
+  else window.addEventListener("load", function () { setTimeout(postTimeline, 300); });
+})();
+</script>
+</body>
+</html>
