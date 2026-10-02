@@ -1,0 +1,28 @@
+{
+  "products": [
+    { "sku": "SKU-1001", "name": "Trail Running Shoes", "category": "footwear", "price": { "amount": 89.99, "currency": "USD" } },
+    { "sku": "SKU-1002", "name": "Merino Wool Socks (3-pack)", "category": "apparel", "price": { "amount": 24.50, "currency": "USD" } },
+    { "sku": "SKU-1003", "name": "Insulated Water Bottle", "category": "gear", "price": { "amount": 32.00, "currency": "USD" } },
+    { "sku": "SKU-1004", "name": "Ultralight Rain Jacket", "category": "apparel", "price": { "amount": 149.00, "currency": "USD" } },
+    { "sku": "SKU-1005", "name": "Headlamp 400 Lumen", "category": "gear", "price": { "amount": 44.95, "currency": "USD" } },
+    { "sku": "SKU-1006", "name": "Gift Card", "category": "gift", "price": null }
+  ],
+  "inventory": [
+    { "sku": "SKU-1001", "onHand": 42 },
+    { "sku": "SKU-1002", "onHand": 250 },
+    { "sku": "SKU-1003", "onHand": 130 },
+    { "sku": "SKU-1004", "onHand": 18 },
+    { "sku": "SKU-1005", "onHand": 64 },
+    { "sku": "SKU-1006", "onHand": 1000 }
+  ],
+  "promos": [
+    { "code": "SAVE10", "type": "percent", "value": 10, "minSubtotal": null, "expiresAt": "2099-12-31" },
+    { "code": "WELCOME5", "type": "fixed", "value": 5, "minSubtotal": 25, "expiresAt": null },
+    { "code": "SUMMER25", "type": "percent", "value": 25, "minSubtotal": null, "expiresAt": "2025-09-01" }
+  ],
+  "customers": [
+    { "id": "C-100", "name": "Ada Lovelace", "email": "ada@example.com", "loyaltyPoints": 120 },
+    { "id": "C-101", "name": "Grace Hopper", "email": "grace@example.com", "loyaltyPoints": 0 },
+    { "id": "C-102", "name": "Alan Turing", "email": "alan@example.com", "loyaltyPoints": 455 }
+  ]
+}

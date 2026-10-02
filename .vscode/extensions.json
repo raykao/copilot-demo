@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "GitHub.copilot-chat",
+    "vscjava.vscode-java-pack",
+    "vmware.vscode-boot-dev-pack",
+    "Orta.vscode-jest",
+    "alexkrechik.cucumberautocomplete"
+  ]
+}

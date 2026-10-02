@@ -1,0 +1,8 @@
+node_modules/
+dist/
+target/
+logs/
+.demo-backup/
+*.log
+.DS_Store
+.idea/

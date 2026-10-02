@@ -1,0 +1,14 @@
+{
+  // Keep Copilot from reading the answer key while you demo.
+  "search.exclude": {
+    "solutions/**": true,
+    "docs/presenter/**": true,
+    "**/node_modules": true,
+    "**/target": true
+  },
+  "files.watcherExclude": {
+    "**/target/**": true
+  },
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "disabled"
+}

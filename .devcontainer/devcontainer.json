@@ -1,0 +1,30 @@
+{
+  "name": "copilot-demo",
+  "image": "mcr.microsoft.com/devcontainers/java:1-17-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "none",
+      "installMaven": "true"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  "forwardPorts": [3001, 5173],
+  "portsAttributes": {
+    "3001": { "label": "Storefront API" },
+    "5173": { "label": "Storefront client", "onAutoForward": "openBrowser" }
+  },
+  "postCreateCommand": "npm --prefix server-node install && npm --prefix client install && (cd server-java && mvn -q -DskipTests package)",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot-chat",
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-boot-dev-pack",
+        "Orta.vscode-jest",
+        "alexkrechik.cucumberautocomplete"
+      ]
+    }
+  }
+}

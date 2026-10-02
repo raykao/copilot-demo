@@ -1,0 +1,118 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Storefront: start Node API",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/server-node" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "^__never__$" },
+        "background": { "activesBegin": ".", "beginsPattern": "storefront-server-node", "endsPattern": "storefront API listening|Error" }
+      },
+      "presentation": { "group": "storefront", "panel": "dedicated" }
+    },
+    {
+      "label": "Storefront: start Java API",
+      "type": "shell",
+      "command": "mvn -q spring-boot:run",
+      "options": { "cwd": "${workspaceFolder}/server-java" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "^__never__$" },
+        "background": { "activesBegin": ".", "beginsPattern": ".", "endsPattern": "Started StorefrontApplication|ERROR" }
+      },
+      "presentation": { "group": "storefront", "panel": "dedicated" }
+    },
+    {
+      "label": "Storefront: start client",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/client" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "^__never__$" },
+        "background": { "activesBegin": ".", "beginsPattern": "vite", "endsPattern": "Local:" }
+      },
+      "presentation": { "group": "storefront", "panel": "dedicated" }
+    },
+    {
+      "label": "Storefront: run with Node API",
+      "dependsOn": ["Storefront: start Node API", "Storefront: start client"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Storefront: run with Java API",
+      "dependsOn": ["Storefront: start Java API", "Storefront: start client"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: install dependencies",
+      "type": "shell",
+      "command": "npm --prefix server-node install && npm --prefix client install && (cd server-java && mvn -q -DskipTests package)",
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Node",
+      "type": "shell",
+      "command": "npm test",
+      "options": { "cwd": "${workspaceFolder}/server-node" },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Java",
+      "type": "shell",
+      "command": "mvn -q test",
+      "options": { "cwd": "${workspaceFolder}/server-java" },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Demo: generate traffic",
+      "type": "shell",
+      "command": "node scripts/traffic.mjs",
+      "problemMatcher": []
+    },
+    {
+      "label": "Demo: clear logs",
+      "type": "shell",
+      "command": "node -e \"require('fs').rmSync('logs/app.log', { force: true })\"",
+      "problemMatcher": []
+    },
+    {
+      "label": "Demo: break the build",
+      "type": "shell",
+      "command": "node scripts/break-build.mjs ${input:stack}",
+      "problemMatcher": []
+    },
+    {
+      "label": "Demo: restore the build",
+      "type": "shell",
+      "command": "node scripts/restore-build.mjs",
+      "problemMatcher": []
+    },
+    {
+      "label": "Demo: jump to stage",
+      "type": "shell",
+      "command": "node scripts/use-stage.mjs ${input:stage}",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "stack",
+      "type": "pickString",
+      "description": "Which backend?",
+      "options": ["node", "java"],
+      "default": "node"
+    },
+    {
+      "id": "stage",
+      "type": "pickString",
+      "description": "Jump to the end state of which stage?",
+      "options": ["01-scaffold", "02-debug", "03-tests"]
+    }
+  ]
+}

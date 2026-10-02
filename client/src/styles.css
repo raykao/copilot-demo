@@ -1,0 +1,276 @@
+:root {
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --text: #1f2328;
+  --muted: #656d76;
+  --accent: #1f6feb;
+  --border: #d0d7de;
+  --danger: #cf222e;
+  --success: #1a7f37;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #24292f;
+  color: #fff;
+}
+
+header h1 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+nav button {
+  background: transparent;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+nav button.active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.backend-badge {
+  margin-left: auto;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: #57606a;
+}
+
+.backend-badge.node {
+  background: #3c873a;
+}
+
+.backend-badge.java {
+  background: #b07219;
+}
+
+.backend-badge.offline {
+  background: var(--danger);
+}
+
+main {
+  padding: 1.5rem;
+}
+
+.shop {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.inventory {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.product-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.product-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.product-card h3 {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.category,
+.sku,
+.muted {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.price {
+  font-weight: 600;
+  margin: 0.25rem 0;
+}
+
+button {
+  font: inherit;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #f6f8fa;
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+select,
+input,
+textarea {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: ui-monospace, monospace;
+  margin-bottom: 0.25rem;
+}
+
+.cart-lines {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem;
+}
+
+.cart-lines li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.qty button {
+  padding: 0 0.5rem;
+}
+
+.promo {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.promo input {
+  flex: 1;
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 1rem;
+  margin: 1rem 0 0;
+}
+
+.totals dd {
+  margin: 0;
+  text-align: right;
+}
+
+.totals .grand {
+  font-weight: 700;
+  border-top: 1px solid var(--border);
+  padding-top: 0.25rem;
+}
+
+.error-banner,
+.success-banner,
+.warning {
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.75rem 0;
+  font-size: 0.85rem;
+}
+
+.error-banner {
+  background: #ffebe9;
+  border: 1px solid var(--danger);
+}
+
+.success-banner {
+  background: #dafbe1;
+  border: 1px solid var(--success);
+  margin: 1rem 1.5rem 0;
+}
+
+.warning {
+  background: #fff8c5;
+  border: 1px solid #d4a72c;
+}
+
+.request-id {
+  display: block;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.num {
+  text-align: right;
+}
