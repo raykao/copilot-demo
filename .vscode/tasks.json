@@ -98,6 +98,12 @@
       "type": "shell",
       "command": "node scripts/use-stage.mjs ${input:stage}",
       "problemMatcher": []
+    },
+    {
+      "label": "Demo: reset to known-good base",
+      "type": "shell",
+      "command": "node scripts/reset-demo.mjs",
+      "problemMatcher": []
     }
   ],
   "inputs": [

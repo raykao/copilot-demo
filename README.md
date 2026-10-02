@@ -93,11 +93,14 @@ solutions/        Known-good snapshots at the end of each stage (the answer key)
 | Demo: generate traffic | Sends a realistic mix of requests, including failures, so `logs/app.log` has evidence to investigate |
 | Demo: break the build / restore the build | Simulates a teammate's half-finished refactor (Module 7) |
 | Demo: jump to stage | Replaces the app with `solutions/01-scaffold`, `02-debug` or `03-tests` if a live demo goes wrong |
+| Demo: reset to known-good base | Restores the app to the permanent `demo-base-2026-10-02` tag and removes untracked app files |
 | Demo: clear logs | Empties `logs/app.log` |
 | Test: Node / Test: Java | Runs the test suite |
 
-To return to the starting state after a run-through:
+To return to the known-good starting state after a run-through, run the **Demo: reset to known-good base** task or:
 
 ```bash
-git checkout -- client server-node server-java specs docs/API.md && git clean -fd client server-node server-java specs
+node scripts/reset-demo.mjs
 ```
+
+The reset replaces tracked files in `client/`, `server-node/`, `server-java/`, `specs/` and `docs/API.md`, then deletes untracked files under the four application directories. It preserves ignored dependencies and build output. Restart the API and client afterward.
